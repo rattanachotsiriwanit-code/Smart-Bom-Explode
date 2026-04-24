@@ -159,16 +159,28 @@
             }
         }
 
-        // ตัวช่วยสำหรับอ่านวันที่จาก Sheets ให้แม่นยำ
+        // ตัวช่วยสำหรับอ่านวันที่จาก Sheets ให้แม่นยำขึ้น
         function parseSheetDate(dateStr) {
-            if (!dateStr) return new Date(0);
-            // รองรับ "24/04/2026 21:30:00"
-            const parts = dateStr.toString().split(/[\/\s:]/);
-            if (parts.length >= 3) {
-                return new Date(parts[2], parts[1]-1, parts[0], parts[3]||0, parts[4]||0, parts[5]||0);
-            }
+            if (!dateStr || dateStr === "Timestamp") return new Date(0);
+            
+            // 1. ลองใช้ตัวอ่านมาตรฐานของ JS ก่อน
             const d = new Date(dateStr);
-            return isNaN(d.getTime()) ? new Date(0) : d;
+            if (!isNaN(d.getTime())) return d;
+
+            // 2. ถ้าไม่ได้ ให้ลองแยกส่วนกรณีเป็น DD/MM/YYYY
+            try {
+                const parts = dateStr.toString().split(/[\/\s,:-]+/);
+                if (parts.length >= 3) {
+                    // ตรวจสอบว่าส่วนแรกเป็นปีหรือวัน
+                    if (parts[0].length === 4) { // YYYY-MM-DD
+                        return new Date(parts[0], parts[1]-1, parts[2], parts[3]||0, parts[4]||0, parts[5]||0);
+                    } else { // DD/MM/YYYY
+                        return new Date(parts[2], parts[1]-1, parts[0], parts[3]||0, parts[4]||0, parts[5]||0);
+                    }
+                }
+            } catch(e) {}
+            
+            return new Date(0);
         }
 
         function updateDropdowns() {
@@ -222,7 +234,8 @@
             }
 
             document.getElementById('shift-label').innerText = label;
-            filteredLogs = rawData.logs.filter(l => { 
+            // กรองข้อมูลโดยข้ามหัวตาราง (Index 0)
+            filteredLogs = rawData.logs.slice(1).filter(l => { 
                 const t = parseSheetDate(l[1]); 
                 return t >= start && t < end; 
             });
