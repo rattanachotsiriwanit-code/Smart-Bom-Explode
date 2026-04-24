@@ -3,81 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Method Engineering - Analytics Dashboard</title>
+    <title>Domae Auto Thermal Welding Scrap Tracking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
         body { background-color: #fcfbf8; color: #334155; font-family: sans-serif; }
-        .chart-container { position: relative; width: 100%; height: 350px; }
+        .chart-container { position: relative; width: 100%; height: 280px; }
         .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
         .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .hide { display: none !important; }
-        .btn-hover:hover { transform: translateY(-1px); transition: all 0.2s; }
+        /* Schneider Green Theme */
+        .bg-schneider { background-color: #3dcd58; }
+        .border-schneider { border-color: #3dcd58; }
+        .text-schneider { color: #3dcd58; }
+        .btn-active { background-color: #2e9d44 !important; color: white !important; border-color: #2e9d44 !important; transform: scale(1.02); }
     </style>
 </head>
-<body class="p-0 m-0 overflow-x-hidden">
+<body class="p-0 m-0 overflow-x-hidden text-xs">
 
-    <!-- Loading Indicator -->
     <div id="loading" class="loading-overlay">
         <div class="flex flex-col items-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
-            <p class="mt-4 font-bold text-slate-600">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</p>
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58]"></div>
+            <p class="mt-4 font-bold text-slate-600">กำลังเชื่อมต่อฐานข้อมูล Schneider...</p>
         </div>
     </div>
 
-    <header class="bg-slate-800 text-white p-6 shadow-md border-b-4 border-sky-500">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <!-- Header: Schneider Green Style -->
+    <header class="bg-schneider text-white p-4 shadow-md border-b-4 border-[#2e9d44] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
             <div>
-                <h1 class="text-2xl font-black tracking-tight uppercase">Method Engineering Dashboard</h1>
-                <p class="text-sky-300 text-sm font-medium">Real-time Defect & BOM Analytics</p>
+                <h1 class="text-lg font-black tracking-tight uppercase">Domae Auto Thermal Welding Scrap Tracking</h1>
+                <p id="shift-label" class="text-white/80 text-[10px] font-medium italic">ตรวจสอบกะทำงาน...</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="fetchAllData()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-bold border border-slate-600 transition-all">
-                    🔄 รีเฟรชข้อมูล
-                </button>
+            <div class="flex flex-wrap justify-center gap-1">
+                <button id="btn-current" onclick="setShiftMode('current')" class="bg-emerald-800/30 hover:bg-emerald-800/50 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold border border-white/20 transition-all btn-active">กะปัจจุบัน</button>
+                <button id="btn-previous" onclick="setShiftMode('previous')" class="bg-emerald-800/30 hover:bg-emerald-800/50 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold border border-white/20 transition-all">กะก่อนหน้า</button>
+                <button id="btn-all" onclick="setShiftMode('all')" class="bg-emerald-800/30 hover:bg-emerald-800/50 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold border border-white/20 transition-all">ทั้งหมด</button>
+                <button onclick="fetchAllData()" class="bg-emerald-900/80 hover:bg-emerald-900 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold shadow-sm transition-all ml-1">🔄 รีเฟรชข้อมูล</button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
+    <main class="max-w-7xl mx-auto p-3 md:p-6 space-y-6">
 
-        <!-- STATS OVERVIEW -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="glass-card p-6 rounded-2xl shadow-sm border-l-4 border-sky-500">
-                <p class="text-xs font-bold text-slate-400 uppercase">งานเสียสะสมทั้งหมด</p>
-                <h2 id="stat-total-qty" class="text-3xl font-black text-slate-800 mt-1">0</h2>
+        <!-- STATS OVERVIEW: Green Borders -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="glass-card p-4 rounded-xl shadow-sm border-l-4 border-schneider">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">ยอดเสียสะสม</p>
+                <h2 id="stat-total-qty" class="text-2xl font-black text-slate-800">0</h2>
             </div>
-            <div id="stat-source-1" class="glass-card p-6 rounded-2xl shadow-sm border-l-4 border-slate-300">
-                <p class="text-xs font-bold text-slate-400 uppercase">งานตกใต้เครื่อง</p>
-                <h2 id="val-source-1" class="text-2xl font-bold text-slate-700 mt-1">0</h2>
+            <div id="stat-source-1" class="glass-card p-4 rounded-xl shadow-sm border-l-4 border-slate-300">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">งานตกใต้เครื่อง</p>
+                <h2 id="val-source-1" class="text-xl font-bold text-slate-700">0</h2>
             </div>
-            <div id="stat-source-2" class="glass-card p-6 rounded-2xl shadow-sm border-l-4 border-slate-300">
-                <p class="text-xs font-bold text-slate-400 uppercase">Reject เครื่อง</p>
-                <h2 id="val-source-2" class="text-2xl font-bold text-slate-700 mt-1">0</h2>
+            <div id="stat-source-2" class="glass-card p-4 rounded-xl shadow-sm border-l-4 border-slate-300">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">Reject เครื่อง</p>
+                <h2 id="val-source-2" class="text-xl font-bold text-slate-700">0</h2>
             </div>
-            <div id="stat-source-3" class="glass-card p-6 rounded-2xl shadow-sm border-l-4 border-slate-300">
-                <p class="text-xs font-bold text-slate-400 uppercase">กล่องเหลือง</p>
-                <h2 id="val-source-3" class="text-2xl font-bold text-slate-700 mt-1">0</h2>
+            <div id="stat-source-3" class="glass-card p-4 rounded-xl shadow-sm border-l-4 border-slate-300">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">กล่องเหลือง</p>
+                <h2 id="val-source-3" class="text-xl font-bold text-slate-700">0</h2>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- TABLE LOGS -->
-            <div class="lg:col-span-1 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-bold flex items-center gap-2"><span>📋</span> รายการล่าสุด</h2>
-                    <button onclick="exportToExcel('logs')" class="text-sky-600 text-xs font-bold hover:underline">📥 EXPORT LOGS</button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Table Section -->
+            <div class="lg:col-span-1 space-y-3">
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-[11px] font-bold uppercase tracking-widest text-slate-500 italic">📋 Logs Table</h2>
+                    <button onclick="exportToExcel('logs')" class="text-emerald-600 text-[9px] font-black hover:underline">📥 EXPORT LOGS</button>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-[750px] flex flex-col">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[580px] flex flex-col">
                     <div class="overflow-y-auto flex-grow">
-                        <table class="w-full text-sm text-left">
-                            <thead class="bg-slate-50 sticky top-0 shadow-sm">
-                                <tr>
-                                    <th class="p-3 font-bold">พนักงาน / เวลา</th>
-                                    <th class="p-3 font-bold">รุ่น / อาการ</th>
-                                    <th class="p-3 font-bold text-right">จำนวน</th>
+                        <table class="w-full text-[10px] text-left">
+                            <thead class="bg-slate-50 sticky top-0 shadow-sm z-10">
+                                <tr class="text-slate-400">
+                                    <th class="p-2 font-bold uppercase">STAFF/TIME</th>
+                                    <th class="p-2 font-bold uppercase">MODEL/DEFECT</th>
+                                    <th class="p-2 font-bold text-right uppercase">QTY</th>
                                 </tr>
                             </thead>
                             <tbody id="logs-tbody" class="divide-y divide-slate-100"></tbody>
@@ -86,22 +90,22 @@
                 </div>
             </div>
 
-            <!-- ANALYTICS CHARTS -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-bold flex items-center gap-2"><span>📊</span> Engineering Analysis</h2>
-                    <button onclick="exportToExcel('bom')" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg text-xs font-bold btn-hover shadow-lg">📥 EXPORT BOM SUMMARY</button>
+            <!-- Charts Section -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-[11px] font-bold uppercase tracking-widest text-slate-500 italic">📊 Engineering Analysis</h2>
+                    <button onclick="exportToExcel('bom')" class="bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold transition-all shadow-sm active:scale-95">📥 EXPORT BOM SUMMARY</button>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="text-sm font-bold text-slate-700 mb-4">Pareto: Defect Breakdown</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-widest text-schneider">Pareto: Defect Breakdown</h3>
                     <div class="chart-container">
                         <canvas id="defectChart"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="text-sm font-bold text-slate-700 mb-4">BOM Explosion (จำนวนชิ้นส่วนที่ต้องใช้จริง)</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-widest text-schneider">BOM Explosion (Requirement)</h3>
                     <div class="chart-container">
                         <canvas id="bomChart"></canvas>
                     </div>
@@ -111,10 +115,8 @@
     </main>
 
     <script>
-        // URL จาก Apps Script ของคุณบอล
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMIlmQy1n3U2VBnyWQUulfBviIVsPELIv6b2e0NibjFegizIFY5xuaDqchfoFblbuX/exec';
-
-        // Mapping Model -> Unique Part Number (Bimetal)
+        
         const MODEL_TO_PART = {
             "Domae 16A 1P": "GHM10369B-BOI",
             "Easy9 16A 1P": "GHM10369BVF-BOI",
@@ -124,20 +126,64 @@
         };
 
         let rawData = { logs: [], matrix: [], master: [] };
+        let filteredLogs = [];
         let charts = { defect: null, bom: null };
+        let currentMode = 'current';
 
         async function fetchAllData() {
             document.getElementById('loading').classList.remove('hide');
             try {
                 const response = await fetch(APPS_SCRIPT_URL);
                 rawData = await response.json();
+                processShiftData();
                 renderAll();
-            } catch (error) {
-                console.error('Fetch Error:', error);
-                alert('ไม่สามารถดึงข้อมูลได้ กรุณาตรวจสอบการตั้งค่า Deployment เป็น Anyone');
-            } finally {
-                document.getElementById('loading').classList.add('hide');
+            } catch (error) { console.error('Fetch Error:', error); }
+            finally { document.getElementById('loading').classList.add('hide'); }
+        }
+
+        function setShiftMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-current').classList.toggle('btn-active', mode === 'current');
+            document.getElementById('btn-previous').classList.toggle('btn-active', mode === 'previous');
+            document.getElementById('btn-all').classList.toggle('btn-active', mode === 'all');
+            processShiftData();
+            renderAll();
+        }
+
+        function processShiftData() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            let shiftStart, shiftEnd, shiftLabel;
+
+            if (currentMode === 'all') {
+                filteredLogs = rawData.logs;
+                document.getElementById('shift-label').innerText = "📅 ข้อมูลประวัติทั้งหมด";
+                return;
             }
+
+            let curShiftStart = new Date(now);
+            if (currentHour >= 8 && currentHour < 20) {
+                curShiftStart.setHours(8, 0, 0, 0);
+            } else {
+                if (currentHour < 8) curShiftStart.setDate(curShiftStart.getDate() - 1);
+                curShiftStart.setHours(20, 0, 0, 0);
+            }
+
+            if (currentMode === 'current') {
+                shiftStart = new Date(curShiftStart);
+                shiftEnd = new Date(curShiftStart.getTime() + 12 * 60 * 60 * 1000);
+                shiftLabel = "🕒 กะปัจจุบัน (" + (shiftStart.getHours() === 8 ? "08:00 - 20:00" : "20:00 - 08:00") + ")";
+            } else if (currentMode === 'previous') {
+                shiftEnd = new Date(curShiftStart);
+                shiftStart = new Date(curShiftStart.getTime() - 12 * 60 * 60 * 1000);
+                shiftLabel = "⏮️ กะก่อนหน้า (" + (shiftStart.getHours() === 8 ? "08:00 - 20:00" : "20:00 - 08:00") + ")";
+            }
+
+            document.getElementById('shift-label').innerText = shiftLabel;
+            filteredLogs = rawData.logs.filter(log => {
+                const logTime = new Date(log[1]);
+                return logTime >= shiftStart && logTime < shiftEnd;
+            });
         }
 
         function renderAll() {
@@ -148,67 +194,63 @@
         }
 
         function updateStats() {
-            const logs = rawData.logs || [];
-            const total = logs.reduce((acc, curr) => acc + (parseInt(curr[6]) || 0), 0);
+            const total = filteredLogs.reduce((acc, curr) => acc + (parseInt(curr[6]) || 0), 0);
             document.getElementById('stat-total-qty').innerText = total;
-
-            const sources = ["งานตกใต้เครื่อง", "Reject เครื่อง", "กล่องเหลือง"];
-            sources.forEach((src, idx) => {
-                const qty = logs.filter(l => l[3] === src).reduce((acc, curr) => acc + (parseInt(curr[6]) || 0), 0);
+            ["งานตกใต้เครื่อง", "Reject เครื่อง", "กล่องเหลือง"].forEach((src, idx) => {
+                const qty = filteredLogs.filter(l => l[3] === src).reduce((acc, curr) => acc + (parseInt(curr[6]) || 0), 0);
+                const statCard = document.getElementById(`stat-source-${idx+1}`);
                 document.getElementById(`val-source-${idx+1}`).innerText = qty;
+                if(qty > 0) statCard.classList.replace('border-slate-300', 'border-schneider');
+                else statCard.classList.replace('border-schneider', 'border-slate-300');
             });
         }
 
         function renderLogsTable() {
             const tbody = document.getElementById('logs-tbody');
-            tbody.innerHTML = (rawData.logs || []).reverse().map(l => `
-                <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="p-3">
-                        <div class="font-bold text-xs">${l[2]}</div>
-                        <div class="text-[10px] text-slate-400 font-mono">${l[1]}</div>
+            tbody.innerHTML = [...filteredLogs].reverse().map(l => `
+                <tr class="hover:bg-slate-50 border-b border-slate-50 transition-colors">
+                    <td class="p-2">
+                        <div class="font-bold text-slate-700">${l[2]}</div>
+                        <div class="text-[8px] text-slate-400 font-mono">${l[1].split(' ')[1]}</div>
                     </td>
-                    <td class="p-3">
-                        <div class="font-bold text-xs text-sky-700">${l[4]}</div>
-                        <div class="text-[10px] text-slate-500 truncate w-40">${l[5]}</div>
+                    <td class="p-2">
+                        <div class="font-bold text-emerald-700 text-[10px]">${l[4]}</div>
+                        <div class="text-[9px] text-slate-500 truncate w-32 md:w-full">${l[5]}</div>
                     </td>
-                    <td class="p-3 text-right font-black text-slate-700">${l[6]}</td>
+                    <td class="p-2 text-right font-black text-rose-500 text-sm">${l[6]}</td>
                 </tr>
             `).join('');
         }
 
         function renderDefectChart() {
             const defectTotals = {};
-            rawData.logs.forEach(l => {
+            filteredLogs.forEach(l => {
                 const name = l[5];
                 const qty = parseInt(l[6]) || 0;
                 defectTotals[name] = (defectTotals[name] || 0) + qty;
             });
-
             const sorted = Object.entries(defectTotals).sort((a, b) => b[1] - a[1]);
-            const labels = sorted.map(d => d[0].length > 25 ? d[0].substring(0, 25) + '...' : d[0]);
+            const labels = sorted.map(d => d[0].length > 20 ? d[0].substring(0, 20) + '...' : d[0]);
             const values = sorted.map(d => d[1]);
-
             const ctx = document.getElementById('defectChart').getContext('2d');
             if (charts.defect) charts.defect.destroy();
             charts.defect = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{ label: 'จำนวน (ชิ้น)', data: values, backgroundColor: '#ef4444', borderRadius: 4 }]
-                },
-                options: {
+                data: { labels, datasets: [{ data: values, backgroundColor: '#f43f5e', borderRadius: 4 }] },
+                options: { 
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { right: 40 } },
                     plugins: { 
                         legend: { display: false }, 
                         datalabels: { 
-                            align: 'right', 
+                            align: 'start', 
                             anchor: 'end', 
-                            color: '#1e293b', 
-                            font: { weight: 'bold' },
-                            formatter: (val) => val > 0 ? val : ''
+                            color: '#fff', 
+                            offset: 4,
+                            font: { weight: 'bold', size: 10 } 
                         } 
-                    },
-                    scales: { x: { display: false }, y: { ticks: { font: { size: 10 } }, grid: { display: false } } }
+                    }, 
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } 
                 }
             });
         }
@@ -216,44 +258,22 @@
         function calculateBOM() {
             const matrixSheet = rawData.matrix || [];
             if (matrixSheet.length < 2) return {};
-
             const header = matrixSheet[0];
             const rows = matrixSheet.slice(1);
             const bomTotals = {};
-            
-            // Initialize totals for all parts found in matrix header
             header.slice(1).forEach(p => bomTotals[p.trim()] = 0);
-
-            rawData.logs.forEach(log => {
-                const modelName = log[4];
-                const defectName = log[5];
-                const qty = parseInt(log[6]) || 0;
-                
-                // 1. Get the Unique Part No for this model
+            filteredLogs.forEach(log => {
+                const modelName = log[4], defectName = log[5], qty = parseInt(log[6]) || 0;
                 const uniquePartNo = MODEL_TO_PART[modelName];
-
-                // 2. Find the row for this defect in the matrix
                 const matrixRow = rows.find(r => r[0] === defectName);
                 if (matrixRow) {
                     header.slice(1).forEach((partName, idx) => {
                         const cleanPartName = partName.trim();
-                        const isRequiredInMatrix = parseInt(matrixRow[idx + 1]) || 0;
-                        
-                        if (isRequiredInMatrix > 0) {
-                            // Check if this part is a "Unique" type (Bimetal)
-                            // A part is considered Unique if it's in the MODEL_TO_PART map values
-                            const uniquePartsList = Object.values(MODEL_TO_PART);
-                            const isUniquePart = uniquePartsList.includes(cleanPartName);
-
-                            if (isUniquePart) {
-                                // Only count if it's the specific unique part for the model in the log
-                                if (cleanPartName === uniquePartNo) {
-                                    bomTotals[cleanPartName] += qty;
-                                }
-                            } else {
-                                // It's a Common Part, always count it
-                                bomTotals[cleanPartName] += qty;
-                            }
+                        const isRequired = parseInt(matrixRow[idx + 1]) || 0;
+                        if (isRequired > 0) {
+                            if (Object.values(MODEL_TO_PART).includes(cleanPartName)) {
+                                if (cleanPartName === uniquePartNo) bomTotals[cleanPartName] += qty;
+                            } else bomTotals[cleanPartName] += qty;
                         }
                     });
                 }
@@ -265,63 +285,50 @@
             const bomTotals = calculateBOM();
             const activeLabels = Object.keys(bomTotals).filter(k => bomTotals[k] > 0);
             const activeValues = activeLabels.map(l => bomTotals[l]);
-
             const ctx = document.getElementById('bomChart').getContext('2d');
             if (charts.bom) charts.bom.destroy();
             charts.bom = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: activeLabels,
-                    datasets: [{ 
-                        label: 'ยอดรวม (ชิ้น)', 
-                        data: activeValues, 
-                        backgroundColor: activeLabels.map(l => l.includes('GHM') ? '#0284c7' : '#94a3b8'), 
-                        borderRadius: 4 
-                    }]
-                },
-                options: {
+                data: { labels: activeLabels, datasets: [{ data: activeValues, backgroundColor: activeLabels.map(l => l.includes('GHM') ? '#3dcd58' : '#94a3b8'), borderRadius: 4 }] },
+                options: { 
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { right: 40 } },
                     plugins: { 
                         legend: { display: false }, 
                         datalabels: { 
-                            align: 'right', 
+                            align: 'start', 
                             anchor: 'end', 
-                            font: { weight: 'bold' },
-                            formatter: (val) => val > 0 ? val : ''
+                            color: '#fff', 
+                            offset: 4,
+                            font: { weight: 'bold', size: 10 } 
                         } 
-                    },
-                    scales: { x: { display: false }, y: { ticks: { font: { size: 10 } }, grid: { display: false } } }
+                    }, 
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } 
                 }
             });
         }
 
         function exportToExcel(type) {
-            const logs = rawData.logs || [];
-            if (logs.length === 0) return alert("ไม่มีข้อมูลสำหรับการ Export");
-
-            let csv = "\ufeff"; // BOM for Thai language support
+            if (filteredLogs.length === 0) return alert("ไม่มีข้อมูลสำหรับการ Export");
+            let csv = "\ufeff";
             if (type === 'logs') {
                 csv += "ID,Timestamp,Staff,Source,Model,Defect,Qty\n";
-                logs.forEach(l => csv += `${l[0]},${l[1]},${l[2]},${l[3]},${l[4]},"${l[5]}",${l[6]}\n`);
+                filteredLogs.forEach(l => csv += `${l[0]},${l[1]},${l[2]},${l[3]},${l[4]},"${l[5]}",${l[6]}\n`);
             } else {
                 const bomTotals = calculateBOM();
-                csv += "Part Number,Total Explosion Qty\n";
-                Object.keys(bomTotals).forEach(p => {
-                    if (bomTotals[p] > 0) csv += `${p},${bomTotals[p]}\n`;
-                });
+                csv += "Part Number,Total Qty\n";
+                Object.keys(bomTotals).forEach(p => { if (bomTotals[p] > 0) csv += `${p},${bomTotals[p]}\n`; });
             }
-
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `${type}_report_${new Date().toLocaleDateString()}.csv`;
+            link.download = `${type}_${currentMode}_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
         }
 
-        window.onload = () => {
-            Chart.register(ChartDataLabels);
-            fetchAllData();
-        };
+        setInterval(() => { processShiftData(); renderAll(); }, 60000);
+        setInterval(fetchAllData, 300000);
+        window.onload = () => { Chart.register(ChartDataLabels); fetchAllData(); };
     </script>
 </body>
 </html>
