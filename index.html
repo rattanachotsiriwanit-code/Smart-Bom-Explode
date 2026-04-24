@@ -8,8 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
-        body { background-color: #fcfbf8; color: #334155; font-family: sans-serif; }
-        /* ปรับ Container ให้รองรับการยืดตัวและ Scroll */
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap');
+        body { background-color: #fcfbf8; color: #334155; font-family: 'Sarabun', sans-serif; font-size: 11px; }
         .chart-container { position: relative; width: 100%; min-height: 400px; }
         .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
         .bg-schneider { background-color: #3dcd58; }
@@ -19,10 +19,12 @@
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
         .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; z-index: 3000; transition: all 0.3s; }
         select { background-image: none; appearance: none; -webkit-appearance: none; }
+        .step-number { background-color: #3dcd58; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0; }
     </style>
 </head>
-<body class="p-0 m-0 overflow-x-hidden text-[11px]">
+<body class="p-0 m-0 overflow-x-hidden">
 
+    <!-- Loading Screen -->
     <div id="loading" class="loading-overlay">
         <div class="text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58] mx-auto"></div>
@@ -59,12 +61,20 @@
                     <button id="btn-ytd" onclick="setFilterMode('ytd')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px] hover:bg-white/10">YTD</button>
                 </div>
 
-                <button onclick="openModal()" class="bg-white text-emerald-600 px-4 py-1.5 rounded-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all border-b-2 border-emerald-200 uppercase">➕ RECORD</button>
+                <div class="flex gap-2">
+                    <button onclick="openManual()" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg font-bold border border-white/30 transition-all text-[9px] flex items-center gap-1 uppercase tracking-tighter">
+                        📖 Manual
+                    </button>
+                    <button onclick="openModal()" class="bg-white text-emerald-600 px-4 py-1.5 rounded-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all border-b-2 border-emerald-200 uppercase tracking-tighter">
+                        ➕ RECORD
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto p-3 space-y-4">
+        <!-- Stats Card Section -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="glass-card p-3 rounded-xl border-l-4 border-emerald-500 text-center">
                 <p class="text-slate-400 font-bold uppercase text-[9px]">Total Scrap</p>
@@ -85,15 +95,16 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Logs Table Section -->
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1 text-slate-400 font-black uppercase italic tracking-tighter">
                     <span>📋 Recent Logs</span>
-                    <button onclick="exportToExcel('logs')" class="text-emerald-600 hover:underline">Export</button>
+                    <button onclick="exportToExcel('logs')" class="text-emerald-600 hover:underline text-[9px]">Export CSV</button>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[850px]">
-                    <div class="overflow-y-auto h-full">
+                    <div class="overflow-y-auto h-full text-[10px]">
                         <table class="w-full text-left">
-                            <thead class="bg-slate-50 sticky top-0 z-10 text-[9px] border-b uppercase">
+                            <thead class="bg-slate-50 sticky top-0 z-10 border-b uppercase">
                                 <tr><th class="p-2">Staff/Time</th><th class="p-2">Model/Defect</th><th class="p-2 text-right">Qty</th><th class="p-2"></th></tr>
                             </thead>
                             <tbody id="logs-tbody" class="divide-y divide-slate-100"></tbody>
@@ -102,10 +113,10 @@
                 </div>
             </div>
 
+            <!-- Charts Section -->
             <div class="lg:col-span-2 space-y-4">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 overflow-hidden">
-                    <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-3">Pareto: Defect Breakdown</h3>
-                    <!-- เพิ่ม overflow-x-auto เพื่อให้เห็น Scrollbar ถ้ากราฟยาว -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-3 text-schneider">Pareto: Defect Breakdown</h3>
                     <div class="overflow-y-auto max-h-[850px]">
                         <div class="chart-container"><canvas id="defectChart"></canvas></div>
                     </div>
@@ -113,8 +124,8 @@
 
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic">BOM Explosion Analysis</h3>
-                        <button onclick="exportToExcel('bom')" class="bg-schneider text-white px-4 py-1.5 rounded-lg font-black shadow hover:bg-emerald-600 transition-all text-[9px] uppercase tracking-tighter">
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic text-schneider">BOM Explosion Analysis</h3>
+                        <button onclick="exportToExcel('bom')" class="bg-schneider text-white px-4 py-1.5 rounded-lg font-black shadow hover:bg-emerald-600 transition-all text-[9px] flex items-center gap-1 uppercase tracking-tighter">
                             📥 Export BOM Explode
                         </button>
                     </div>
@@ -129,8 +140,8 @@
     <!-- RECORD & EDIT MODAL -->
     <div id="recordModal" class="modal hide">
         <div class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 m-4">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h2 id="modal-title" class="text-base font-black text-emerald-700 uppercase tracking-tighter italic">New Scrap Record</h2>
+            <div class="flex justify-between items-center border-b pb-2 text-schneider">
+                <h2 id="modal-title" class="text-base font-black uppercase tracking-tighter italic">New Scrap Record</h2>
                 <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-2xl font-bold">&times;</button>
             </div>
             <form id="scrapForm" class="space-y-3 text-[12px]">
@@ -138,7 +149,7 @@
                 <div><label class="block font-bold text-slate-500 mb-1 italic">Staff Name</label><input type="text" id="in-staff" required placeholder="ชื่อพนักงาน" class="w-full p-2 border rounded-lg bg-slate-50 focus:ring-2 ring-emerald-500 outline-none"></div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1 italic">Source</label>
-                    <select id="in-source" class="w-full p-2 border rounded-lg bg-slate-50">
+                    <select id="in-source" class="w-full p-2 border rounded-lg bg-slate-50 font-bold">
                         <option value="งานหล่น ใต้เครื่อง">งานหล่น ใต้เครื่อง</option>
                         <option value="งาน Reject จากเครื่อง">งาน Reject จากเครื่อง</option>
                         <option value="งานใน Yellow Box">งานใน Yellow Box</option>
@@ -146,9 +157,89 @@
                 </div>
                 <div><label class="block font-bold text-slate-500 mb-1 italic">Model</label><select id="in-model" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
                 <div><label class="block font-bold text-slate-500 mb-1 italic">Defect Symptoms</label><select id="in-defect" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
-                <div><label class="block font-bold text-slate-500 mb-1 italic">Qty (ชิ้น)</label><input type="number" id="in-qty" value="1" min="1" required class="w-full p-2 border rounded-lg bg-slate-50"></div>
+                <div><label class="block font-bold text-slate-500 mb-1 italic">Qty (ชิ้น)</label><input type="number" id="in-qty" value="1" min="1" required class="w-full p-2 border rounded-lg bg-slate-50 font-bold"></div>
                 <button type="submit" id="saveBtn" class="w-full bg-schneider text-white py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-600 transition-all mt-4 uppercase tracking-wider">Save Data</button>
             </form>
+        </div>
+    </div>
+
+    <!-- MANUAL MODAL (FULL DETAILED MANUAL) -->
+    <div id="manualModal" class="modal hide">
+        <div class="bg-white w-full max-w-2xl max-h-[90vh] p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col m-4">
+            <div class="schneider-green p-5 flex justify-between items-center text-white">
+                <h2 class="text-lg font-black uppercase tracking-widest italic">📖 คู่มือการบันทึกข้อมูล (Operator Manual)</h2>
+                <button onclick="closeManual()" class="hover:bg-black/10 w-8 h-8 rounded-full flex items-center justify-center text-2xl font-bold transition-all">&times;</button>
+            </div>
+            <div class="p-8 overflow-y-auto space-y-12 text-slate-600">
+                
+                <!-- Step 1: Entry -->
+                <div class="flex gap-6 items-start">
+                    <div class="step-number">1</div>
+                    <div class="space-y-4 flex-1">
+                        <h4 class="font-black text-slate-800 text-base italic uppercase">การเริ่มบันทึกข้อมูล</h4>
+                        <p class="text-sm">เมื่อตรวจพบงานเสีย ให้กดปุ่ม <span class="font-bold text-emerald-600 underline text-base">"➕ RECORD"</span> ที่อยู่มุมบนขวาของหน้าจอ iPad</p>
+                        <div class="bg-slate-50 rounded-2xl overflow-hidden border-2 border-dashed border-slate-200 flex items-center justify-center p-4">
+                             <svg viewBox="0 0 300 100" class="w-full h-auto max-w-[280px]">
+                                <rect width="300" height="40" fill="#3dcd58" rx="10" />
+                                <rect x="210" y="8" width="80" height="24" rx="6" fill="white" />
+                                <text x="220" y="24" font-size="10" font-weight="bold" fill="#3dcd58">➕ RECORD</text>
+                                <text x="15" y="25" fill="white" font-size="12" font-weight="bold">Domae Scrap Tracking</text>
+                                <circle cx="250" cy="20" r="18" fill="rgba(255,0,0,0.2)" stroke="red" stroke-width="2" />
+                                <path d="M250 20 L270 50" stroke="red" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Filling -->
+                <div class="flex gap-6 items-start">
+                    <div class="step-number">2</div>
+                    <div class="space-y-4 flex-1">
+                        <h4 class="font-black text-slate-800 text-base italic uppercase">กรอกรายละเอียด (5 จุดสำคัญ)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Staff:</span> ชื่อผู้บันทึก</li>
+                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Source:</span> จุดที่พบงานเสีย</li>
+                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Model:</span> รุ่นสินค้าที่ผลิต</li>
+                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Defect:</span> อาการเสียที่พบ</li>
+                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Qty:</span> จำนวนชิ้นที่เสีย</li>
+                            </ul>
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 shadow-inner">
+                                <div class="h-6 w-full bg-white border border-slate-200 rounded"></div>
+                                <div class="h-6 w-full bg-white border border-slate-200 rounded"></div>
+                                <div class="h-10 w-full schneider-green text-white rounded-lg text-center font-bold text-xs flex items-center justify-center shadow-md">SAVE DATA</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Editing -->
+                <div class="flex gap-6 items-start">
+                    <div class="step-number">3</div>
+                    <div class="space-y-4 flex-1">
+                        <h4 class="font-black text-slate-800 text-base italic uppercase">การแก้ไขข้อมูล (✏️)</h4>
+                        <p class="text-sm">หากคีย์ผิด ให้กดรูป <span class="font-bold text-emerald-600 text-lg">ดินสอ ✏️</span> ท้ายแถวของคุณในตาราง <span class="underline">Logs Table</span> ห้ามคีย์ซ้ำบรรทัดใหม่</p>
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 flex justify-between items-center shadow-sm">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-tighter italic">บันทึกโดย พนักงาน A</span>
+                                <span class="text-[10px] text-emerald-600 font-mono">24/04/2026 | 15 ชิ้น</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-emerald-500 font-bold border-2 border-emerald-400 bg-white rounded-lg px-2 py-1 text-base shadow-sm cursor-pointer">✏️</span>
+                                <div class="animate-pulse">👈 กดตรงนี้</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip -->
+                <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg transform rotate-1">
+                    <p class="text-sm font-bold leading-relaxed">💡 ข้อมูลทุกอย่างที่บันทึกจะถูก "ระเบิด BOM" เพื่อวิเคราะห์อะไหล่ที่เสียอัตโนมัติที่กราฟด้านล่างหน้าจอครับ</p>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center">
+                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold hover:bg-slate-700 transition-all uppercase text-xs tracking-widest shadow-lg active:scale-95">เข้าใจแล้ว (ปิดคู่มือ)</button>
+            </div>
         </div>
     </div>
 
@@ -159,7 +250,7 @@
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
         let isFirstLoad = true;
 
-        function wrapText(text, maxLength = 25) {
+        function wrapText(text, maxLength = 30) {
             if (!text) return [""];
             const words = text.toString().split(" ");
             let lines = [], currentLine = "";
@@ -237,7 +328,7 @@
             document.getElementById('val-source-3').innerText = getQty(["งานใน Yellow Box", "กล่องเหลือง"]).toLocaleString();
             
             document.getElementById('logs-tbody').innerHTML = [...filteredLogs].reverse().map(l => `
-                <tr class="hover:bg-slate-50 border-b border-slate-50">
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
                     <td class="p-2 font-bold text-slate-700">${l[2]}<div class="text-[8px] text-slate-400 font-mono">${parseSheetDate(l[1]).toLocaleString('th-TH', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}</div></td>
                     <td class="p-2 font-bold text-emerald-700"><div>${l[4]}</div><div class="text-[9px] text-slate-500 font-normal">${l[5]}</div></td>
                     <td class="p-2 text-right font-black text-rose-500 text-sm">${(parseInt(l[6]) || 0).toLocaleString()}</td>
@@ -249,10 +340,7 @@
         function renderCharts() {
             const dMap = {}; filteredLogs.forEach(l => { dMap[l[5]] = (dMap[l[5]] || 0) + (parseInt(l[6]) || 0); });
             const ds = Object.entries(dMap).sort((a,b) => b[1]-a[1]);
-            
-            // --- DYNAMIC HEIGHT CALCULATION ---
-            // เราคำนวณความสูงตามจำนวนรายการ: ล็อคไว้ที่รายการละ 45px (หรือขั้นต่ำ 400px)
-            const dynamicHeightD = Math.max(400, ds.length * 50);
+            const dynamicHeightD = Math.max(400, ds.length * 55);
             const ctxD = document.getElementById('defectChart');
             ctxD.parentNode.style.height = dynamicHeightD + "px";
 
@@ -262,9 +350,9 @@
                 data: { labels: ds.map(d => wrapText(d[0], 30)), datasets: [{ data: ds.map(d => d[1]), backgroundColor: '#f43f5e', borderRadius: 4 }] }, 
                 options: { 
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
-                    layout: { padding: { right: 50, left: 10 } }, 
-                    plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', color: '#000', font: { weight: 'bold', size: 10 }, formatter: (v) => v.toLocaleString() } }, 
-                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: false, padding: 10 } } } 
+                    layout: { padding: { right: 60, left: 10 } }, 
+                    plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', color: '#000', font: { weight: 'bold', size: 10, family: 'Sarabun' }, formatter: (v) => v.toLocaleString() } }, 
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, family: 'Sarabun' }, autoSkip: false, padding: 10 } } } 
                 } 
             });
 
@@ -274,8 +362,7 @@
                 if (row) mH.slice(1).forEach((p, i) => { const cp = p.trim(); if (parseInt(row[i+1]) > 0) { if (Object.values(MODEL_TO_PART).includes(cp)) { if (cp === u) bMap[cp] += parseInt(l[6]); } else bMap[cp] += parseInt(l[6]); } });
             });
             const bl = Object.keys(bMap).filter(k => bMap[k] > 0);
-            
-            const dynamicHeightB = Math.max(400, bl.length * 45);
+            const dynamicHeightB = Math.max(400, bl.length * 50);
             const ctxB = document.getElementById('bomChart');
             ctxB.parentNode.style.height = dynamicHeightB + "px";
 
@@ -285,15 +372,21 @@
                 data: { labels: bl.map(l => wrapText(l, 30)), datasets: [{ data: bl.map(l => bMap[l]), backgroundColor: bl.map(l => l.includes('GHM') ? '#3dcd58' : '#94a3b8'), borderRadius: 4 }] }, 
                 options: { 
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
-                    layout: { padding: { right: 50, left: 10 } }, 
-                    plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', color: '#000', font: { weight: 'bold', size: 10 }, formatter: (v) => v.toLocaleString() } }, 
-                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: false } } } 
+                    layout: { padding: { right: 60, left: 10 } }, 
+                    plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', color: '#000', font: { weight: 'bold', size: 10, family: 'Sarabun' }, formatter: (v) => v.toLocaleString() } }, 
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, family: 'Sarabun' }, autoSkip: false, padding: 10 } } } 
                 } 
             });
         }
 
+        // Modal Controls
         function openModal() { document.getElementById('recordModal').classList.remove('hide'); document.getElementById('scrapForm').reset(); document.getElementById('in-id').value = ""; document.getElementById('modal-title').innerText = "New Scrap Record"; }
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
+        
+        // Manual Controls
+        function openManual() { document.getElementById('manualModal').classList.remove('hide'); }
+        function closeManual() { document.getElementById('manualModal').classList.add('hide'); }
+
         function editEntry(id) {
             const e = rawData.logs.find(l => l[0] === id);
             if (!e) return;
@@ -301,6 +394,7 @@
             document.getElementById('modal-title').innerText = "Edit Record";
             document.getElementById('in-id').value = e[0]; document.getElementById('in-staff').value = e[2]; document.getElementById('in-source').value = e[3]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6];
         }
+
         document.getElementById('scrapForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "PROCESSING...";
@@ -310,6 +404,7 @@
             catch (err) { showToast("Failed!", "#ef4444"); }
             finally { btn.disabled = false; btn.innerText = "SAVE DATA"; }
         });
+
         function showToast(m, c) { const t = document.getElementById('toast'); t.innerText = m; t.style.backgroundColor = c; t.classList.remove('hide'); setTimeout(() => t.classList.add('hide'), 3000); }
         function exportToExcel(t) {
             if (filteredLogs.length === 0) return showToast("No Data!", "#6b7280");
@@ -318,12 +413,20 @@
             else { csv += "Part Number,Total Explosion Qty\n"; const bm = calculateCurrentBOM(); Object.keys(bm).forEach(p => { if (bm[p] > 0) csv += `${p},${bm[p]}\n`; }); }
             const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `${t}_${currentMode}_report.csv`; l.click();
         }
+
         function calculateCurrentBOM() {
             const bMap = {}; const mH = rawData.matrix[0], mR = rawData.matrix.slice(1); if(mH) mH.slice(1).forEach(p => bMap[p.trim()] = 0);
             filteredLogs.forEach(l => { const u = MODEL_TO_PART[l[4]], row = mR.find(r => r[0] === l[5]); if (row) mH.slice(1).forEach((p, i) => { const cp = p.trim(); if (parseInt(row[i+1]) > 0) { if (Object.values(MODEL_TO_PART).includes(cp)) { if (cp === u) bMap[cp] += parseInt(l[6]); } else bMap[cp] += parseInt(l[6]); } }); });
             return bMap;
         }
+
         function setFilterMode(m) { currentMode = m; ['btn-current', 'btn-previous', 'btn-ytd'].forEach(id => document.getElementById(id).classList.toggle('btn-active', id === 'btn-' + m)); processShiftData(); renderAll(); }
+        
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('manualModal')) closeManual();
+            if (event.target == document.getElementById('recordModal')) closeModal();
+        }
+
         window.onload = () => { Chart.register(ChartDataLabels); fetchAllData(); };
         setInterval(fetchAllData, 300000);
     </script>
