@@ -9,7 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
         body { background-color: #fcfbf8; color: #334155; font-family: sans-serif; }
-        .chart-container { position: relative; width: 100%; height: 260px; }
+        /* ขยายความสูงกราฟให้จุใจ */
+        .chart-container { position: relative; width: 100%; height: 400px; }
         .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
         .bg-schneider { background-color: #3dcd58; }
         .btn-active { background-color: #2e9d44 !important; color: white !important; transform: scale(1.05); }
@@ -36,17 +37,15 @@
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="text-center lg:text-left">
                 <h1 class="text-base font-black uppercase tracking-tighter">Domae Auto Thermal Welding Scrap Tracking</h1>
-                <p id="shift-label" class="text-white/90 text-[9px] italic italic">Checking current shift...</p>
+                <p id="shift-label" class="text-white/90 text-[9px] italic italic font-medium">ตรวจสอบข้อมูลกะทำงาน...</p>
             </div>
             
             <div class="flex flex-wrap items-center justify-center gap-2">
-                <!-- Shift Logic -->
                 <div class="flex bg-black/10 p-1 rounded-lg">
                     <button id="btn-current" onclick="setFilterMode('current')" class="px-2 py-1 rounded-md transition-all btn-active font-bold uppercase text-[9px]">Shift</button>
                     <button id="btn-previous" onclick="setFilterMode('previous')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px]">Prev</button>
                 </div>
 
-                <!-- Custom Period Dropdowns -->
                 <div class="flex items-center bg-white/10 p-1 rounded-lg border border-white/20 gap-1">
                     <select id="sel-month" onchange="setFilterMode('month')" class="bg-emerald-900/40 text-white border-none rounded px-2 py-1 text-[9px] font-bold outline-none cursor-pointer">
                         <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option>
@@ -66,25 +65,34 @@
     </header>
 
     <main class="max-w-7xl mx-auto p-3 space-y-4">
-        <!-- Stats with Thousand Separator -->
+        <!-- Stats Card Section -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="glass-card p-3 rounded-xl border-l-4 border-emerald-500 text-center">
                 <p class="text-slate-400 font-bold uppercase text-[9px]">Total Scrap</p>
                 <h2 id="stat-total-qty" class="text-2xl font-black text-slate-800 tracking-tight">0</h2>
             </div>
-            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center"><p class="text-slate-400 font-bold text-[9px] uppercase italic">งานหล่น ใต้เครื่อง</p><h2 id="val-source-1" class="text-xl font-bold">0</h2></div>
-            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center"><p class="text-slate-400 font-bold text-[9px] uppercase italic">งาน Reject จากเครื่อง</p><h2 id="val-source-2" class="text-xl font-bold">0</h2></div>
-            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center"><p class="text-slate-400 font-bold text-[9px] uppercase italic">งานใน Yellow Box</p><h2 id="val-source-3" class="text-xl font-bold">0</h2></div>
+            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center">
+                <p class="text-slate-400 font-bold text-[9px] uppercase italic">งานหล่น ใต้เครื่อง</p>
+                <h2 id="val-source-1" class="text-xl font-bold">0</h2>
+            </div>
+            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center">
+                <p class="text-slate-400 font-bold text-[9px] uppercase italic">งาน Reject จากเครื่อง</p>
+                <h2 id="val-source-2" class="text-xl font-bold">0</h2>
+            </div>
+            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center">
+                <p class="text-slate-400 font-bold text-[9px] uppercase italic">งานใน Yellow Box</p>
+                <h2 id="val-source-3" class="text-xl font-bold">0</h2>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <!-- Logs Table -->
+            <!-- Logs Table Section: ขยายความสูงเป็น 850px -->
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1">
                     <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic text-xs">📋 Logs Table</h2>
                     <button onclick="exportToExcel('logs')" class="text-emerald-600 font-bold hover:underline">EXPORT CSV</button>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[500px]">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[850px]">
                     <div class="overflow-y-auto h-full">
                         <table class="w-full text-left">
                             <thead class="bg-slate-50 sticky top-0 z-10 text-[9px] text-slate-400 border-b uppercase">
@@ -96,16 +104,16 @@
                 </div>
             </div>
 
-            <!-- Charts Section -->
+            <!-- Charts Section: ขยายความสูงกราฟแต่ละตัว -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                    <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-2 text-schneider">Pareto: Defect Breakdown</h3>
+                    <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-2">Pareto: Defect Breakdown</h3>
                     <div class="chart-container"><canvas id="defectChart"></canvas></div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic text-schneider">BOM Explosion Analysis</h3>
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic">BOM Explosion Analysis</h3>
                         <button onclick="exportToExcel('bom')" class="bg-schneider text-white px-4 py-1.5 rounded-lg font-black shadow hover:bg-emerald-600 transition-all text-[9px] flex items-center gap-1 uppercase">
                             📥 Export BOM Explode
                         </button>
@@ -126,7 +134,14 @@
             <form id="scrapForm" class="space-y-3 text-[12px]">
                 <input type="hidden" id="in-id">
                 <div><label class="block font-bold text-slate-500 mb-1 italic">Staff Name</label><input type="text" id="in-staff" required placeholder="ชื่อพนักงาน" class="w-full p-2 border rounded-lg bg-slate-50 focus:ring-2 ring-emerald-500 outline-none"></div>
-                <div><label class="block font-bold text-slate-500 mb-1 italic">Source</label><select id="in-source" class="w-full p-2 border rounded-lg bg-slate-50"><option>งานตกใต้เครื่อง</option><option>Reject เครื่อง</option><option>กล่องเหลือง</option></select></div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1 italic">Source</label>
+                    <select id="in-source" class="w-full p-2 border rounded-lg bg-slate-50">
+                        <option value="งานหล่น ใต้เครื่อง">งานหล่น ใต้เครื่อง</option>
+                        <option value="งาน Reject จากเครื่อง">งาน Reject จากเครื่อง</option>
+                        <option value="งานใน Yellow Box">งานใน Yellow Box</option>
+                    </select>
+                </div>
                 <div><label class="block font-bold text-slate-500 mb-1 italic">Model</label><select id="in-model" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
                 <div><label class="block font-bold text-slate-500 mb-1 italic">Defect Symptoms</label><select id="in-defect" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
                 <div><label class="block font-bold text-slate-500 mb-1 italic">Qty (ชิ้น)</label><input type="number" id="in-qty" value="1" min="1" required class="w-full p-2 border rounded-lg bg-slate-50"></div>
@@ -139,6 +154,8 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyymdZFOLv1nLcNV0d1mkHvbHQbSFXqUS_Ef3fMxlYnL8vRjqsPnaQG7o3r8VNA7kfY/exec';
         const MODEL_TO_PART = { "Domae 16A 1P": "GHM10369B-BOI", "Easy9 16A 1P": "GHM10369BVF-BOI", "IK60 16A 1P": "GHM10369B-BOI(CN)", "IK60 16A 3/4P - IK20A 1/2P": "GHM10369C-BOI(CN)", "Domae Easy9 16A 3/4P - IK20A 1/2P": "GHM10740A-BOI" };
         
+        const SOURCE_LIST = ["งานหล่น ใต้เครื่อง", "งาน Reject จากเครื่อง", "งานใน Yellow Box"];
+
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
         let isFirstLoad = true;
 
@@ -159,27 +176,17 @@
             }
         }
 
-        // ตัวช่วยสำหรับอ่านวันที่จาก Sheets ให้แม่นยำขึ้น
         function parseSheetDate(dateStr) {
             if (!dateStr || dateStr === "Timestamp") return new Date(0);
-            
-            // 1. ลองใช้ตัวอ่านมาตรฐานของ JS ก่อน
             const d = new Date(dateStr);
             if (!isNaN(d.getTime())) return d;
-
-            // 2. ถ้าไม่ได้ ให้ลองแยกส่วนกรณีเป็น DD/MM/YYYY
             try {
                 const parts = dateStr.toString().split(/[\/\s,:-]+/);
                 if (parts.length >= 3) {
-                    // ตรวจสอบว่าส่วนแรกเป็นปีหรือวัน
-                    if (parts[0].length === 4) { // YYYY-MM-DD
-                        return new Date(parts[0], parts[1]-1, parts[2], parts[3]||0, parts[4]||0, parts[5]||0);
-                    } else { // DD/MM/YYYY
-                        return new Date(parts[2], parts[1]-1, parts[0], parts[3]||0, parts[4]||0, parts[5]||0);
-                    }
+                    if (parts[0].length === 4) return new Date(parts[0], parts[1]-1, parts[2], parts[3]||0, parts[4]||0, parts[5]||0);
+                    else return new Date(parts[2], parts[1]-1, parts[0], parts[3]||0, parts[4]||0, parts[5]||0);
                 }
             } catch(e) {}
-            
             return new Date(0);
         }
 
@@ -188,7 +195,6 @@
             if (rawData.master.length > 0) mSelect.innerHTML = rawData.master.slice(1).map(r => r[0]).filter(v => v && v !== 'Common').map(m => `<option value="${m}">${m}</option>`).join('');
             if (rawData.matrix.length > 0) dSelect.innerHTML = rawData.matrix.slice(1).map(r => r[0]).filter(v => v).map(d => `<option value="${d}">${d}</option>`).join('');
             
-            // ตั้งค่าเริ่มต้นให้ Dropdown เดือน/ปี เป็นค่าปัจจุบันเฉพาะการโหลดครั้งแรก
             if (isFirstLoad) {
                 const now = new Date();
                 document.getElementById('sel-month').value = now.getMonth();
@@ -234,7 +240,6 @@
             }
 
             document.getElementById('shift-label').innerText = label;
-            // กรองข้อมูลโดยข้ามหัวตาราง (Index 0)
             filteredLogs = rawData.logs.slice(1).filter(l => { 
                 const t = parseSheetDate(l[1]); 
                 return t >= start && t < end; 
@@ -244,10 +249,14 @@
         function renderAll() {
             const total = filteredLogs.reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
             document.getElementById('stat-total-qty').innerText = total.toLocaleString();
-            ["งานตกใต้เครื่อง", "Reject เครื่อง", "กล่องเหลือง"].forEach((s, i) => {
-                const qty = filteredLogs.filter(l => l[3] === s).reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
-                document.getElementById(`val-source-${i+1}`).innerText = qty.toLocaleString();
-            });
+            
+            const getQty = (sourceNames) => {
+                return filteredLogs.filter(l => sourceNames.includes(l[3])).reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
+            };
+
+            document.getElementById('val-source-1').innerText = getQty(["งานหล่น ใต้เครื่อง", "งานตกใต้เครื่อง"]).toLocaleString();
+            document.getElementById('val-source-2').innerText = getQty(["งาน Reject จากเครื่อง", "Reject เครื่อง"]).toLocaleString();
+            document.getElementById('val-source-3').innerText = getQty(["งานใน Yellow Box", "กล่องเหลือง"]).toLocaleString();
             
             document.getElementById('logs-tbody').innerHTML = [...filteredLogs].reverse().map(l => `
                 <tr class="hover:bg-slate-50 border-b border-slate-50">
@@ -381,7 +390,7 @@
         }
 
         window.onload = () => { Chart.register(ChartDataLabels); fetchAllData(); };
-        setInterval(fetchAllData, 300000); // Auto-refresh ทุก 5 นาที
+        setInterval(fetchAllData, 300000);
     </script>
 </body>
 </html>
