@@ -17,15 +17,15 @@
         .hide { display: none !important; }
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
         .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; z-index: 3000; transition: all 0.3s; }
+        select { background-image: none; appearance: none; -webkit-appearance: none; }
     </style>
 </head>
 <body class="p-0 m-0 overflow-x-hidden text-[11px]">
 
-    <!-- Loading Screen -->
     <div id="loading" class="loading-overlay">
         <div class="text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58] mx-auto"></div>
-            <p class="mt-2 font-bold text-slate-500 italic">Syncing Schneider System...</p>
+            <p class="mt-2 font-bold text-slate-500 italic text-xs">Syncing Schneider System...</p>
         </div>
     </div>
     
@@ -33,37 +33,55 @@
 
     <!-- Header -->
     <header class="bg-schneider text-white p-3 shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
-            <div class="text-center md:text-left">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
+            <div class="text-center lg:text-left">
                 <h1 class="text-base font-black uppercase tracking-tighter">Domae Auto Thermal Welding Scrap Tracking</h1>
-                <p id="shift-label" class="text-white/90 text-[9px] italic">Checking current shift...</p>
+                <p id="shift-label" class="text-white/90 text-[9px] italic italic">Checking current shift...</p>
             </div>
-            <div class="flex items-center gap-2">
+            
+            <div class="flex flex-wrap items-center justify-center gap-2">
+                <!-- Shift Logic -->
                 <div class="flex bg-black/10 p-1 rounded-lg">
-                    <button id="btn-current" onclick="setShiftMode('current')" class="px-3 py-1 rounded-md transition-all btn-active font-bold uppercase">Current</button>
-                    <button id="btn-previous" onclick="setShiftMode('previous')" class="px-3 py-1 rounded-md transition-all font-bold uppercase">Previous</button>
+                    <button id="btn-current" onclick="setFilterMode('current')" class="px-2 py-1 rounded-md transition-all btn-active font-bold uppercase text-[9px]">Shift</button>
+                    <button id="btn-previous" onclick="setFilterMode('previous')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px]">Prev</button>
                 </div>
-                <!-- ปุ่ม RECORD สำหรับเพิ่มข้อมูลใหม่ -->
-                <button onclick="openModal()" class="bg-white text-emerald-600 px-4 py-1.5 rounded-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all border-b-2 border-emerald-200">➕ RECORD</button>
+
+                <!-- Custom Period Dropdowns -->
+                <div class="flex items-center bg-white/10 p-1 rounded-lg border border-white/20 gap-1">
+                    <select id="sel-month" onchange="setFilterMode('month')" class="bg-emerald-900/40 text-white border-none rounded px-2 py-1 text-[9px] font-bold outline-none cursor-pointer">
+                        <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option>
+                        <option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option>
+                        <option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option>
+                    </select>
+                    <select id="sel-year" onchange="setFilterMode('year')" class="bg-emerald-900/40 text-white border-none rounded px-2 py-1 text-[9px] font-bold outline-none cursor-pointer">
+                        <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+                        <option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option>
+                    </select>
+                    <button id="btn-ytd" onclick="setFilterMode('ytd')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px] hover:bg-white/10">YTD</button>
+                </div>
+
+                <button onclick="openModal()" class="bg-white text-emerald-600 px-4 py-1.5 rounded-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all border-b-2 border-emerald-200 uppercase">➕ RECORD</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto p-3 space-y-4">
-        
-        <!-- Dashboard Stats -->
+        <!-- Stats with Thousand Separator -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="glass-card p-3 rounded-xl border-l-4 border-emerald-500 text-center"><p class="text-slate-400 font-bold uppercase text-[9px]">Total Scrap</p><h2 id="stat-total-qty" class="text-2xl font-black text-slate-800">0</h2></div>
+            <div class="glass-card p-3 rounded-xl border-l-4 border-emerald-500 text-center">
+                <p class="text-slate-400 font-bold uppercase text-[9px]">Total Scrap</p>
+                <h2 id="stat-total-qty" class="text-2xl font-black text-slate-800 tracking-tight">0</h2>
+            </div>
             <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center"><p class="text-slate-400 font-bold text-[9px] uppercase italic">Fallen</p><h2 id="val-source-1" class="text-xl font-bold">0</h2></div>
             <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center"><p class="text-slate-400 font-bold text-[9px] uppercase italic">Reject</p><h2 id="val-source-2" class="text-xl font-bold">0</h2></div>
             <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center"><p class="text-slate-400 font-bold text-[9px] uppercase italic">Yellow Box</p><h2 id="val-source-3" class="text-xl font-bold">0</h2></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <!-- Logs Table Section -->
+            <!-- Logs Table -->
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1">
-                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">📋 Logs Table</h2>
+                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic text-xs">📋 Logs Table</h2>
                     <button onclick="exportToExcel('logs')" class="text-emerald-600 font-bold hover:underline">EXPORT CSV</button>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[500px]">
@@ -81,14 +99,13 @@
             <!-- Charts Section -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                    <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-2">Pareto: Defect Breakdown</h3>
+                    <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-2 text-schneider">Pareto: Defect Breakdown</h3>
                     <div class="chart-container"><canvas id="defectChart"></canvas></div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic">BOM Explosion Analysis</h3>
-                        <!-- ปุ่ม Export BOM เด่นๆ ตามที่คุณบอลขอครับ -->
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic text-schneider">BOM Explosion Analysis</h3>
                         <button onclick="exportToExcel('bom')" class="bg-schneider text-white px-4 py-1.5 rounded-lg font-black shadow hover:bg-emerald-600 transition-all text-[9px] flex items-center gap-1 uppercase">
                             📥 Export BOM Explode
                         </button>
@@ -99,54 +116,34 @@
         </div>
     </main>
 
-    <!-- RECORD & EDIT MODAL (หน้าสำหรับกรอกและแก้ไขข้อมูล) -->
+    <!-- RECORD & EDIT MODAL -->
     <div id="recordModal" class="modal hide">
-        <div class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4">
+        <div class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 m-4">
             <div class="flex justify-between items-center border-b pb-2">
                 <h2 id="modal-title" class="text-base font-black text-emerald-700 uppercase tracking-tighter italic">New Scrap Record</h2>
                 <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-2xl font-bold">&times;</button>
             </div>
             <form id="scrapForm" class="space-y-3 text-[12px]">
-                <input type="hidden" id="in-id"> <!-- Hidden ID for Edit Mode -->
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1 italic">Staff Name</label>
-                    <input type="text" id="in-staff" required placeholder="ชื่อพนักงาน" class="w-full p-2 border rounded-lg bg-slate-50 focus:ring-2 ring-emerald-500 outline-none">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1 italic">Source</label>
-                    <select id="in-source" class="w-full p-2 border rounded-lg bg-slate-50">
-                        <option>งานตกใต้เครื่อง</option>
-                        <option>Reject เครื่อง</option>
-                        <option>กล่องเหลือง</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1 italic">Model</label>
-                    <select id="in-model" class="w-full p-2 border rounded-lg bg-slate-50"></select>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1 italic">Defect Symptoms</label>
-                    <select id="in-defect" class="w-full p-2 border rounded-lg bg-slate-50"></select>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1 italic">Qty (ชิ้น)</label>
-                    <input type="number" id="in-qty" value="1" min="1" required class="w-full p-2 border rounded-lg bg-slate-50">
-                </div>
+                <input type="hidden" id="in-id">
+                <div><label class="block font-bold text-slate-500 mb-1 italic">Staff Name</label><input type="text" id="in-staff" required placeholder="ชื่อพนักงาน" class="w-full p-2 border rounded-lg bg-slate-50 focus:ring-2 ring-emerald-500 outline-none"></div>
+                <div><label class="block font-bold text-slate-500 mb-1 italic">Source</label><select id="in-source" class="w-full p-2 border rounded-lg bg-slate-50"><option>งานตกใต้เครื่อง</option><option>Reject เครื่อง</option><option>กล่องเหลือง</option></select></div>
+                <div><label class="block font-bold text-slate-500 mb-1 italic">Model</label><select id="in-model" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
+                <div><label class="block font-bold text-slate-500 mb-1 italic">Defect Symptoms</label><select id="in-defect" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
+                <div><label class="block font-bold text-slate-500 mb-1 italic">Qty (ชิ้น)</label><input type="number" id="in-qty" value="1" min="1" required class="w-full p-2 border rounded-lg bg-slate-50"></div>
                 <button type="submit" id="saveBtn" class="w-full bg-schneider text-white py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-600 transition-all mt-4 uppercase tracking-wider">Save Data</button>
             </form>
         </div>
     </div>
 
     <script>
-        // URL Apps Script ตัวใหม่ล่าสุดที่คุณบอลส่งมาครับ
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyymdZFOLv1nLcNV0d1mkHvbHQbSFXqUS_Ef3fMxlYnL8vRjqsPnaQG7o3r8VNA7kfY/exec';
-        
         const MODEL_TO_PART = { "Domae 16A 1P": "GHM10369B-BOI", "Easy9 16A 1P": "GHM10369BVF-BOI", "IK60 16A 1P": "GHM10369B-BOI(CN)", "IK60 16A 3/4P - IK20A 1/2P": "GHM10369C-BOI(CN)", "Domae Easy9 16A 3/4P - IK20A 1/2P": "GHM10740A-BOI" };
         
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
+        let isFirstLoad = true;
 
         async function fetchAllData() {
-            document.getElementById('loading').classList.remove('hide');
+            if (isFirstLoad) document.getElementById('loading').classList.remove('hide');
             try {
                 const response = await fetch(APPS_SCRIPT_URL);
                 rawData = await response.json();
@@ -158,49 +155,93 @@
                 console.error(err);
             } finally { 
                 document.getElementById('loading').classList.add('hide'); 
+                isFirstLoad = false;
             }
+        }
+
+        // ตัวช่วยสำหรับอ่านวันที่จาก Sheets ให้แม่นยำ
+        function parseSheetDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            // รองรับ "24/04/2026 21:30:00"
+            const parts = dateStr.toString().split(/[\/\s:]/);
+            if (parts.length >= 3) {
+                return new Date(parts[2], parts[1]-1, parts[0], parts[3]||0, parts[4]||0, parts[5]||0);
+            }
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? new Date(0) : d;
         }
 
         function updateDropdowns() {
             const mSelect = document.getElementById('in-model'), dSelect = document.getElementById('in-defect');
-            mSelect.innerHTML = rawData.master.slice(1).map(r => r[0]).filter(v => v && v !== 'Common').map(m => `<option value="${m}">${m}</option>`).join('');
-            dSelect.innerHTML = rawData.matrix.slice(1).map(r => r[0]).filter(v => v).map(d => `<option value="${d}">${d}</option>`).join('');
+            if (rawData.master.length > 0) mSelect.innerHTML = rawData.master.slice(1).map(r => r[0]).filter(v => v && v !== 'Common').map(m => `<option value="${m}">${m}</option>`).join('');
+            if (rawData.matrix.length > 0) dSelect.innerHTML = rawData.matrix.slice(1).map(r => r[0]).filter(v => v).map(d => `<option value="${d}">${d}</option>`).join('');
+            
+            // ตั้งค่าเริ่มต้นให้ Dropdown เดือน/ปี เป็นค่าปัจจุบันเฉพาะการโหลดครั้งแรก
+            if (isFirstLoad) {
+                const now = new Date();
+                document.getElementById('sel-month').value = now.getMonth();
+                document.getElementById('sel-year').value = now.getFullYear();
+            }
         }
 
         function processShiftData() {
             const now = new Date(), hr = now.getHours();
-            let start, end, label, curStart = new Date(now);
-            if (hr >= 8 && hr < 20) curStart.setHours(8, 0, 0, 0);
-            else { if (hr < 8) curStart.setDate(curStart.getDate() - 1); curStart.setHours(20, 0, 0, 0); }
-            
-            if (currentMode === 'current') { 
-                start = new Date(curStart); 
-                end = new Date(curStart.getTime() + 12 * 3600000); 
-                label = "🕒 Current (" + (start.getHours() === 8 ? "08:00-20:00" : "20:00-08:00") + ")"; 
-            } else { 
-                end = new Date(curStart); 
-                start = new Date(curStart.getTime() - 12 * 3600000); 
-                label = "⏮️ Previous (" + (start.getHours() === 8 ? "08:00-20:00" : "20:00-08:00") + ")"; 
+            const selMonth = parseInt(document.getElementById('sel-month').value);
+            const selYear = parseInt(document.getElementById('sel-year').value);
+            let start, end, label;
+
+            if (currentMode === 'current' || currentMode === 'previous') {
+                let curShiftStart = new Date(now);
+                if (hr >= 8 && hr < 20) curShiftStart.setHours(8, 0, 0, 0);
+                else { 
+                    if (hr < 8) curShiftStart.setDate(curShiftStart.getDate() - 1); 
+                    curShiftStart.setHours(20, 0, 0, 0); 
+                }
+                
+                if (currentMode === 'current') { 
+                    start = new Date(curShiftStart); 
+                    end = new Date(curShiftStart.getTime() + 12 * 3600000); 
+                    label = "🕒 Shift (" + (start.getHours() === 8 ? "08:00-20:00" : "20:00-08:00") + ")"; 
+                } else { 
+                    end = new Date(curShiftStart); 
+                    start = new Date(curShiftStart.getTime() - 12 * 3600000); 
+                    label = "⏮️ Prev Shift (" + (start.getHours() === 8 ? "08:00-20:00" : "20:00-08:00") + ")"; 
+                }
+            } else if (currentMode === 'month') {
+                start = new Date(selYear, selMonth, 1);
+                end = new Date(selYear, selMonth + 1, 1);
+                label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${selYear}`;
+            } else if (currentMode === 'year') {
+                start = new Date(selYear, 0, 1);
+                end = new Date(selYear + 1, 0, 1);
+                label = `📊 Annual: ${selYear}`;
+            } else if (currentMode === 'ytd') {
+                start = new Date(selYear, 0, 1);
+                end = (selYear === now.getFullYear()) ? now : new Date(selYear + 1, 0, 1);
+                label = `📈 YTD: Jan - ${(selYear === now.getFullYear()) ? 'Today' : 'Dec'} ${selYear}`;
             }
+
             document.getElementById('shift-label').innerText = label;
-            filteredLogs = rawData.logs.filter(l => { const t = new Date(l[1]); return t >= start && t < end; });
+            filteredLogs = rawData.logs.filter(l => { 
+                const t = parseSheetDate(l[1]); 
+                return t >= start && t < end; 
+            });
         }
 
         function renderAll() {
             const total = filteredLogs.reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
-            document.getElementById('stat-total-qty').innerText = total;
+            document.getElementById('stat-total-qty').innerText = total.toLocaleString();
             ["งานตกใต้เครื่อง", "Reject เครื่อง", "กล่องเหลือง"].forEach((s, i) => {
-                document.getElementById(`val-source-${i+1}`).innerText = filteredLogs.filter(l => l[3] === s).reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
+                const qty = filteredLogs.filter(l => l[3] === s).reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
+                document.getElementById(`val-source-${i+1}`).innerText = qty.toLocaleString();
             });
+            
             document.getElementById('logs-tbody').innerHTML = [...filteredLogs].reverse().map(l => `
                 <tr class="hover:bg-slate-50 border-b border-slate-50">
-                    <td class="p-2 font-bold text-slate-700">${l[2]}<div class="text-[8px] text-slate-400 font-mono">${l[1].split(' ')[1]}</div></td>
+                    <td class="p-2 font-bold text-slate-700">${l[2]}<div class="text-[8px] text-slate-400 font-mono">${parseSheetDate(l[1]).toLocaleString('th-TH', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}</div></td>
                     <td class="p-2"><div class="font-bold text-emerald-700">${l[4]}</div><div class="text-[9px] text-slate-500 truncate w-32">${l[5]}</div></td>
-                    <td class="p-2 text-right font-black text-rose-500 text-sm">${l[6]}</td>
-                    <td class="p-2 text-right">
-                        <!-- ปุ่มแก้ไขข้อมูล -->
-                        <button onclick="editEntry('${l[0]}')" class="text-slate-300 hover:text-sky-500 transition-colors p-1" title="Edit">✏️</button>
-                    </td>
+                    <td class="p-2 text-right font-black text-rose-500 text-sm">${(parseInt(l[6]) || 0).toLocaleString()}</td>
+                    <td class="p-2 text-right"><button onclick="editEntry('${l[0]}')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">✏️</button></td>
                 </tr>`).join('');
             renderCharts();
         }
@@ -210,9 +251,23 @@
             const dSorted = Object.entries(dMap).sort((a,b) => b[1]-a[1]);
             const ctxD = document.getElementById('defectChart').getContext('2d');
             if (charts.defect) charts.defect.destroy();
-            charts.defect = new Chart(ctxD, { type: 'bar', data: { labels: dSorted.map(d => d[0].substring(0,15)), datasets: [{ data: dSorted.map(d => d[1]), backgroundColor: '#f43f5e', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { align: 'start', anchor: 'end', color: '#fff', font: { weight: 'bold', size: 10 } } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
+            charts.defect = new Chart(ctxD, { 
+                type: 'bar', 
+                data: { labels: dSorted.map(d => d[0].substring(0,15)), datasets: [{ data: dSorted.map(d => d[1]), backgroundColor: '#f43f5e', borderRadius: 4 }] }, 
+                options: { 
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, layout: { padding: { right: 40 } }, 
+                    plugins: { 
+                        legend: { display: false }, 
+                        datalabels: { 
+                            align: 'start', anchor: 'end', color: '#fff', font: { weight: 'bold', size: 10 },
+                            formatter: (v) => v.toLocaleString()
+                        } 
+                    }, 
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } 
+                } 
+            });
 
-            const bMap = {}; const mH = rawData.matrix[0], mR = rawData.matrix.slice(1); mH.slice(1).forEach(p => bMap[p.trim()] = 0);
+            const bMap = {}; const mH = rawData.matrix[0], mR = rawData.matrix.slice(1); if(mH) mH.slice(1).forEach(p => bMap[p.trim()] = 0);
             filteredLogs.forEach(l => {
                 const u = MODEL_TO_PART[l[4]], row = mR.find(r => r[0] === l[5]);
                 if (row) mH.slice(1).forEach((p, i) => { const cp = p.trim(); if (parseInt(row[i+1]) > 0) { if (Object.values(MODEL_TO_PART).includes(cp)) { if (cp === u) bMap[cp] += parseInt(l[6]); } else bMap[cp] += parseInt(l[6]); } });
@@ -220,7 +275,21 @@
             const bLabels = Object.keys(bMap).filter(k => bMap[k] > 0);
             const ctxB = document.getElementById('bomChart').getContext('2d');
             if (charts.bom) charts.bom.destroy();
-            charts.bom = new Chart(ctxB, { type: 'bar', data: { labels: bLabels, datasets: [{ data: bLabels.map(l => bMap[l]), backgroundColor: bLabels.map(l => l.includes('GHM') ? '#3dcd58' : '#94a3b8'), borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { align: 'start', anchor: 'end', color: '#fff', font: { weight: 'bold', size: 10 } } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
+            charts.bom = new Chart(ctxB, { 
+                type: 'bar', 
+                data: { labels: bLabels, datasets: [{ data: bLabels.map(l => bMap[l]), backgroundColor: bLabels.map(l => l.includes('GHM') ? '#3dcd58' : '#94a3b8'), borderRadius: 4 }] }, 
+                options: { 
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, layout: { padding: { right: 40 } }, 
+                    plugins: { 
+                        legend: { display: false }, 
+                        datalabels: { 
+                            align: 'start', anchor: 'end', color: '#fff', font: { weight: 'bold', size: 10 },
+                            formatter: (v) => v.toLocaleString()
+                        } 
+                    }, 
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } 
+                } 
+            });
         }
 
         function openModal() { 
@@ -231,7 +300,6 @@
         }
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
 
-        // ฟังก์ชันดึงข้อมูลมาแสดงในฟอร์มเพื่อแก้ไข
         function editEntry(id) {
             const entry = rawData.logs.find(l => l[0] === id);
             if (!entry) return;
@@ -245,30 +313,16 @@
             document.getElementById('in-qty').value = entry[6];
         }
 
-        // ส่งข้อมูล (ได้ทั้งเพิ่มใหม่และแก้ไข)
         document.getElementById('scrapForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "PROCESSING...";
             const id = document.getElementById('in-id').value;
-            const payload = {
-                action: id ? 'edit' : 'create',
-                id: id,
-                staff: document.getElementById('in-staff').value,
-                source: document.getElementById('in-source').value,
-                model: document.getElementById('in-model').value,
-                defect: document.getElementById('in-defect').value,
-                qty: document.getElementById('in-qty').value
-            };
+            const payload = { action: id ? 'edit' : 'create', id, staff: document.getElementById('in-staff').value, source: document.getElementById('in-source').value, model: document.getElementById('in-model').value, defect: document.getElementById('in-defect').value, qty: document.getElementById('in-qty').value };
             try {
                 await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                showToast("Success!", "#3dcd58"); 
-                closeModal(); 
-                fetchAllData(); // รีเฟรชข้อมูลทันทีหลังบันทึก
-            } catch (err) { 
-                showToast("Failed to Save!", "#ef4444"); 
-            } finally { 
-                btn.disabled = false; btn.innerText = "SAVE DATA"; 
-            }
+                showToast("Success!", "#3dcd58"); closeModal(); fetchAllData(); 
+            } catch (err) { showToast("Failed!", "#ef4444"); }
+            finally { btn.disabled = false; btn.innerText = "SAVE DATA"; }
         });
 
         function showToast(msg, color) {
@@ -289,12 +343,12 @@
             }
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-            link.download = `${type}_${currentMode}_report.csv`; link.click();
+            link.download = `${type}_${currentMode}_${new Date().toISOString().split('T')[0]}.csv`; link.click();
         }
 
         function calculateCurrentBOM() {
             const bMap = {}; const mH = rawData.matrix[0], mR = rawData.matrix.slice(1);
-            mH.slice(1).forEach(p => bMap[p.trim()] = 0);
+            if(mH) mH.slice(1).forEach(p => bMap[p.trim()] = 0);
             filteredLogs.forEach(l => {
                 const u = MODEL_TO_PART[l[4]], row = mR.find(r => r[0] === l[5]);
                 if (row) mH.slice(1).forEach((p, i) => { const cp = p.trim(); if (parseInt(row[i+1]) > 0) { if (Object.values(MODEL_TO_PART).includes(cp)) { if (cp === u) bMap[cp] += parseInt(l[6]); } else bMap[cp] += parseInt(l[6]); } });
@@ -302,21 +356,19 @@
             return bMap;
         }
 
-        function setShiftMode(mode) { 
+        function setFilterMode(mode) { 
             currentMode = mode; 
-            document.getElementById('btn-current').classList.toggle('btn-active', mode === 'current'); 
-            document.getElementById('btn-previous').classList.toggle('btn-active', mode === 'previous'); 
-            processShiftData(); 
-            renderAll(); 
+            const buttons = ['btn-current', 'btn-previous', 'btn-ytd'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (id === 'btn-' + mode) btn.classList.add('btn-active');
+                else btn.classList.remove('btn-active');
+            });
+            processShiftData(); renderAll(); 
         }
 
-        window.onload = () => { 
-            Chart.register(ChartDataLabels); 
-            fetchAllData(); 
-        };
-        
-        // Auto refresh ข้อมูลทุก 5 นาที
-        setInterval(fetchAllData, 300000);
+        window.onload = () => { Chart.register(ChartDataLabels); fetchAllData(); };
+        setInterval(fetchAllData, 300000); // Auto-refresh ทุก 5 นาที
     </script>
 </body>
 </html>
