@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domae Auto Thermal Welding Scrap Tracking</title>
+    <title>Domae Scrap Tracking - Road to 70% OEE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -20,11 +20,19 @@
         .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; z-index: 3000; transition: all 0.3s; }
         select { background-image: none; appearance: none; -webkit-appearance: none; }
         .step-number { background-color: #3dcd58; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0; }
+        
+        .rally-text {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body class="p-0 m-0 overflow-x-hidden">
 
-    <!-- Loading Screen -->
     <div id="loading" class="loading-overlay">
         <div class="text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58] mx-auto"></div>
@@ -38,8 +46,8 @@
     <header class="bg-schneider text-white p-3 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="text-center lg:text-left">
-                <h1 class="text-base font-black uppercase tracking-tighter">Domae Auto Thermal Welding Scrap Tracking</h1>
-                <p id="shift-label" class="text-white/90 text-[9px] italic font-medium">ตรวจสอบข้อมูลกะทำงาน...</p>
+                <h1 class="text-base font-black uppercase tracking-tighter">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal">Road to 70% OEE</span></h1>
+                <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">ตรวจสอบข้อมูลกะทำงาน...</p>
             </div>
             
             <div class="flex flex-wrap items-center justify-center gap-2">
@@ -65,7 +73,7 @@
                     <button onclick="openManual()" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg font-bold border border-white/30 transition-all text-[9px] flex items-center gap-1 uppercase tracking-tighter">
                         📖 Manual
                     </button>
-                    <button onclick="openModal()" class="bg-white text-emerald-600 px-4 py-1.5 rounded-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all border-b-2 border-emerald-200 uppercase tracking-tighter">
+                    <button onclick="openModal()" class="bg-white text-emerald-600 px-6 py-1.5 rounded-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all border-b-2 border-emerald-200 uppercase tracking-tighter">
                         ➕ RECORD
                     </button>
                 </div>
@@ -74,28 +82,23 @@
     </header>
 
     <main class="max-w-7xl mx-auto p-3 space-y-4">
-        <!-- Stats Card Section -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="glass-card p-3 rounded-xl border-l-4 border-emerald-500 text-center">
-                <p class="text-slate-400 font-bold uppercase text-[9px]">Total Scrap</p>
-                <h2 id="stat-total-qty" class="text-2xl font-black text-slate-800 tracking-tight">0</h2>
+        <!-- Dashboard Content -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="glass-card p-6 rounded-2xl border-l-8 border-emerald-500 text-center flex flex-col justify-center shadow-sm">
+                <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">Total Scrap Quantity</p>
+                <h2 id="stat-total-qty" class="text-5xl font-black text-slate-800 tracking-tighter">0</h2>
             </div>
-            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center">
-                <p class="text-slate-400 font-bold text-[9px] uppercase italic">งานหล่น ใต้เครื่อง</p>
-                <h2 id="val-source-1" class="text-xl font-bold">0</h2>
-            </div>
-            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center">
-                <p class="text-slate-400 font-bold text-[9px] uppercase italic">งาน Reject จากเครื่อง</p>
-                <h2 id="val-source-2" class="text-xl font-bold">0</h2>
-            </div>
-            <div class="glass-card p-3 rounded-xl border-l-4 border-slate-300 text-center">
-                <p class="text-slate-400 font-bold text-[9px] uppercase italic">งานใน Yellow Box</p>
-                <h2 id="val-source-3" class="text-xl font-bold">0</h2>
+            <div class="col-span-2 glass-card p-6 rounded-2xl bg-emerald-600 flex flex-col items-center justify-center shadow-md relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3m4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
+                </div>
+                <h2 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 rally-text italic">Road to 70% OEE</h2>
+                <p class="text-emerald-100 text-xl md:text-2xl font-bold italic text-center">"Domae Sub Welding Team!"</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <!-- Logs Table Section -->
+            <!-- Logs Table -->
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1 text-slate-400 font-black uppercase italic tracking-tighter">
                     <span>📋 Recent Logs</span>
@@ -105,7 +108,7 @@
                     <div class="overflow-y-auto h-full text-[10px]">
                         <table class="w-full text-left">
                             <thead class="bg-slate-50 sticky top-0 z-10 border-b uppercase">
-                                <tr><th class="p-2">Staff/Time</th><th class="p-2">Model/Defect</th><th class="p-2 text-right">Qty</th><th class="p-2"></th></tr>
+                                <tr><th class="p-2">Time</th><th class="p-2">Model/Defect</th><th class="p-2 text-right">Qty</th><th class="p-2"></th></tr>
                             </thead>
                             <tbody id="logs-tbody" class="divide-y divide-slate-100"></tbody>
                         </table>
@@ -137,145 +140,76 @@
         </div>
     </main>
 
-    <!-- RECORD & EDIT MODAL -->
+    <!-- RECORD MODAL -->
     <div id="recordModal" class="modal hide">
-        <div class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 m-4">
-            <div class="flex justify-between items-center border-b pb-2 text-schneider">
-                <h2 id="modal-title" class="text-base font-black uppercase tracking-tighter italic">New Scrap Record</h2>
-                <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-2xl font-bold">&times;</button>
+        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl space-y-6 m-4 border-t-8 border-schneider">
+            <div class="flex justify-between items-center border-b pb-4 text-schneider">
+                <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter italic">บันทึกงานเสีย</h2>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-3xl font-light">&times;</button>
             </div>
-            <form id="scrapForm" class="space-y-3 text-[12px]">
+            <form id="scrapForm" class="space-y-4 text-[13px]">
                 <input type="hidden" id="in-id">
-                <div><label class="block font-bold text-slate-500 mb-1 italic">Staff Name</label><input type="text" id="in-staff" required placeholder="ชื่อพนักงาน" class="w-full p-2 border rounded-lg bg-slate-50 focus:ring-2 ring-emerald-500 outline-none"></div>
                 <div>
-                    <label class="block font-bold text-slate-500 mb-1 italic">Source</label>
-                    <select id="in-source" class="w-full p-2 border rounded-lg bg-slate-50 font-bold">
-                        <option value="งานหล่น ใต้เครื่อง">งานหล่น ใต้เครื่อง</option>
-                        <option value="งาน Reject จากเครื่อง">งาน Reject จากเครื่อง</option>
-                        <option value="งานใน Yellow Box">งานใน Yellow Box</option>
-                    </select>
+                    <label class="block font-bold text-slate-500 mb-1 italic">1. รุ่นสินค้า (Model)</label>
+                    <select id="in-model" class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none font-bold text-slate-700"></select>
                 </div>
-                <div><label class="block font-bold text-slate-500 mb-1 italic">Model</label><select id="in-model" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
-                <div><label class="block font-bold text-slate-500 mb-1 italic">Defect Symptoms</label><select id="in-defect" class="w-full p-2 border rounded-lg bg-slate-50"></select></div>
-                <div><label class="block font-bold text-slate-500 mb-1 italic">Qty (ชิ้น)</label><input type="number" id="in-qty" value="1" min="1" required class="w-full p-2 border rounded-lg bg-slate-50 font-bold"></div>
-                <button type="submit" id="saveBtn" class="w-full bg-schneider text-white py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-600 transition-all mt-4 uppercase tracking-wider">Save Data</button>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1 italic">2. อาการเสีย (Defect)</label>
+                    <select id="in-defect" class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none text-slate-700"></select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1 italic">3. จำนวนชิ้น (Qty)</label>
+                    <input type="number" id="in-qty" value="1" min="1" required class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none font-black text-lg text-schneider">
+                </div>
+                <button type="submit" id="saveBtn" class="w-full bg-schneider text-white py-4 rounded-2xl font-black shadow-xl hover:bg-emerald-600 transition-all mt-6 uppercase tracking-widest text-base active:scale-95">
+                    บันทึกข้อมูลทันที
+                </button>
             </form>
         </div>
     </div>
 
     <!-- MANUAL MODAL -->
     <div id="manualModal" class="modal hide">
-        <div class="bg-white w-full max-w-2xl max-h-[90vh] p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col m-4">
+        <div class="bg-white w-full max-w-xl max-h-[90vh] p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col m-4">
             <div class="schneider-green p-5 flex justify-between items-center text-white">
-                <h2 class="text-lg font-black uppercase tracking-widest italic">📖 คู่มือการบันทึกข้อมูล (Operator Manual)</h2>
+                <h2 class="text-lg font-black uppercase tracking-widest italic">📖 คู่มือบันทึกงานเสีย (Lean)</h2>
                 <button onclick="closeManual()" class="hover:bg-black/10 w-8 h-8 rounded-full flex items-center justify-center text-2xl font-bold transition-all">&times;</button>
             </div>
-            <div class="p-8 overflow-y-auto space-y-12 text-slate-600">
-                <!-- Step 1 -->
+            <div class="p-8 overflow-y-auto space-y-10 text-slate-600">
                 <div class="flex gap-6 items-start">
                     <div class="step-number">1</div>
-                    <div class="space-y-4 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">การเริ่มบันทึกข้อมูล</h4>
-                        <p class="text-sm">เมื่อตรวจพบงานเสีย ให้กดปุ่ม <span class="font-bold text-emerald-600 underline text-base">"➕ RECORD"</span> ที่อยู่มุมบนขวาของหน้าจอ iPad</p>
-                        <div class="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4">
-                             <svg viewBox="0 0 300 100" class="w-full h-auto max-w-[280px]">
-                                <rect width="300" height="40" fill="#3dcd58" rx="10" />
-                                <rect x="210" y="8" width="80" height="24" rx="6" fill="white" />
-                                <text x="220" y="24" font-size="10" font-weight="bold" fill="#3dcd58">➕ RECORD</text>
-                                <text x="15" y="25" fill="white" font-size="12" font-weight="bold">Domae Scrap Tracking</text>
-                                <circle cx="250" cy="20" r="18" fill="rgba(255,0,0,0.2)" stroke="red" stroke-width="2" />
-                                <path d="M250 20 L270 50" stroke="red" stroke-width="2" stroke-linecap="round" />
-                            </svg>
-                        </div>
+                    <div class="space-y-2 flex-1">
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">เปิดหน้าบันทึก</h4>
+                        <p class="text-sm">กดปุ่มสีขาว <span class="font-bold text-emerald-600 underline">"➕ RECORD"</span> ด้านบนขวา</p>
                     </div>
                 </div>
-
-                <!-- Step 2 -->
                 <div class="flex gap-6 items-start">
                     <div class="step-number">2</div>
-                    <div class="space-y-4 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">กรอกรายละเอียด (5 จุดสำคัญ)</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Staff:</span> ชื่อผู้บันทึก</li>
-                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Source:</span> จุดที่พบงานเสีย</li>
-                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Model:</span> รุ่นสินค้าที่ผลิต</li>
-                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Defect:</span> อาการเสียที่พบ</li>
-                                <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Qty:</span> จำนวนชิ้นที่เสีย</li>
-                            </ul>
-                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 shadow-inner">
-                                <div class="h-6 w-full bg-white border border-slate-200 rounded"></div>
-                                <div class="h-6 w-full bg-white border border-slate-200 rounded"></div>
-                                <div class="h-10 w-full schneider-green text-white rounded-lg text-center font-bold text-xs flex items-center justify-center shadow-md">SAVE DATA</div>
-                            </div>
-                        </div>
+                    <div class="space-y-2 flex-1">
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">เลือก & ใส่ยอด</h4>
+                        <p class="text-sm">เลือก <span class="font-bold text-slate-700">รุ่นสินค้า</span> ➔ <span class="font-bold text-slate-700">อาการเสีย</span> ➔ <span class="font-bold text-rose-500 underline">ใส่จำนวนชิ้น</span></p>
                     </div>
                 </div>
-
-                <!-- Step 3 -->
                 <div class="flex gap-6 items-start">
                     <div class="step-number">3</div>
-                    <div class="space-y-4 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">การแก้ไขข้อมูล (✏️)</h4>
-                        <p class="text-sm">หากคีย์ผิด ให้กดรูป <span class="font-bold text-emerald-600 text-lg">ดินสอ ✏️</span> ท้ายแถวของคุณในตาราง <span class="underline">Logs Table</span> ห้ามคีย์ซ้ำบรรทัดใหม่</p>
-                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 flex justify-between items-center shadow-sm">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-slate-700 uppercase tracking-tighter italic">บันทึกโดย พนักงาน A</span>
-                                <span class="text-[10px] text-emerald-600 font-mono">24/04/2026 | 15 ชิ้น</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-emerald-500 font-bold border-2 border-emerald-400 bg-white rounded-lg px-2 py-1 text-base shadow-sm cursor-pointer">✏️</span>
-                            </div>
-                        </div>
+                    <div class="space-y-2 flex-1">
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">กดบันทึก</h4>
+                        <p class="text-sm">กดปุ่มสีเขียว <span class="font-bold underline text-emerald-600">"บันทึกข้อมูลทันที"</span></p>
                     </div>
                 </div>
-
-                <!-- Step 4: Explanation for Filters -->
-                <div class="flex gap-6 items-start">
-                    <div class="step-number">4</div>
-                    <div class="space-y-4 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">การใช้ปุ่ม Filter (เลือกดูข้อมูล)</h4>
-                        <div class="space-y-4">
-                            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 flex items-center justify-center">
-                                <svg viewBox="0 0 350 80" class="w-full h-auto max-w-[320px]">
-                                    <rect x="10" y="10" width="80" height="30" rx="4" fill="#2e9d44" />
-                                    <text x="32" y="30" font-size="10" fill="white" font-weight="bold">Shift</text>
-                                    <rect x="100" y="10" width="150" height="30" rx="4" fill="#065f46" fill-opacity="0.4" />
-                                    <text x="110" y="30" font-size="10" fill="white" font-weight="bold">Jan ▼ 2026 ▼</text>
-                                    <rect x="260" y="10" width="80" height="30" rx="4" fill="#3dcd58" fill-opacity="0.2" />
-                                    <text x="285" y="30" font-size="10" fill="#3dcd58" font-weight="bold">YTD</text>
-                                </svg>
-                            </div>
-                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                    <span class="font-bold text-emerald-600">Shift:</span> ดูยอดของกะปัจจุบัน (ตัดกะที่ 13:00 และ 01:00)
-                                </li>
-                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                    <span class="font-bold text-emerald-600">Prev:</span> ดูยอดย้อนหลังของกะที่แล้วทันที
-                                </li>
-                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                    <span class="font-bold text-emerald-600">Month / Year:</span> เลือกเดือนและปีเพื่อดูยอดย้อนหลังรายเดือน
-                                </li>
-                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                    <span class="font-bold text-emerald-600">YTD:</span> ดูยอดสะสมตั้งแต่ 1 ม.ค. จนถึงปัจจุบันของปีที่เลือก
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg transform rotate-1">
-                    <p class="text-sm font-bold leading-relaxed">💡 ระบบจะคำนวณแยกกะและระเบิด BOM ให้อัตโนมัติตามช่วงเวลาที่คุณเลือกดูครับ</p>
+                <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg text-center font-bold italic text-sm">
+                    🏁 เป้าหมาย OEE 70% เริ่มต้นที่วินัยการคีย์ข้อมูล!
                 </div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center">
-                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-all">เข้าใจแล้ว (ปิดคู่มือ)</button>
+                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg active:scale-95">รับทราบ ลุย!</button>
             </div>
         </div>
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyymdZFOLv1nLcNV0d1mkHvbHQbSFXqUS_Ef3fMxlYnL8vRjqsPnaQG7o3r8VNA7kfY/exec';
+        // UPDATE: อัปเดต URL ใหม่ที่คุณบอลให้มาเรียบร้อยครับ
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMmJJ5PHQrGeaUC68PhKmeBKTaXIwskZHzOIeiA38zHK-tEBeOmvEUE3vq11i2DVYR/exec';
         const MODEL_TO_PART = { "Domae 16A 1P": "GHM10369B-BOI", "Easy9 16A 1P": "GHM10369BVF-BOI", "IK60 16A 1P": "GHM10369B-BOI(CN)", "IK60 16A 3/4P - IK20A 1/2P": "GHM10369C-BOI(CN)", "Domae Easy9 16A 3/4P - IK20A 1/2P": "GHM10740A-BOI" };
         
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
@@ -345,49 +279,23 @@
                 } else {
                     cs.setHours(1, 0, 0, 0);
                 }
-
-                if (currentMode === 'current') { 
-                    start = new Date(cs); 
-                    end = new Date(cs.getTime() + 12 * 3600000); 
-                    label = "🕒 Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
-                } else { 
-                    end = new Date(cs); 
-                    start = new Date(cs.getTime() - 12 * 3600000); 
-                    label = "⏮️ Prev Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
-                }
-            } else if (currentMode === 'month') { 
-                start = new Date(sy, sm, 1); 
-                end = new Date(sy, sm + 1, 1); 
-                label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; 
-            } else if (currentMode === 'year') {
-                start = new Date(sy, 0, 1);
-                end = new Date(sy + 1, 0, 1);
-                label = `📊 Annual ${sy}`;
-            } else { 
-                start = new Date(sy, 0, 1); 
-                end = (currentMode === 'ytd' && sy === now.getFullYear()) ? now : new Date(sy + 1, 0, 1); 
-                label = `📈 YTD ${sy}`; 
-            }
+                if (currentMode === 'current') { start = new Date(cs); end = new Date(cs.getTime() + 12 * 3600000); label = "🕒 Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; }
+                else { end = new Date(cs); start = new Date(cs.getTime() - 12 * 3600000); label = "⏮️ Prev Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; }
+            } else if (currentMode === 'month') { start = new Date(sy, sm, 1); end = new Date(sy, sm + 1, 1); label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; }
+            else if (currentMode === 'year') { start = new Date(sy, 0, 1); end = new Date(sy + 1, 0, 1); label = `📊 Annual ${sy}`; }
+            else { start = new Date(sy, 0, 1); end = (currentMode === 'ytd' && sy === now.getFullYear()) ? now : new Date(sy + 1, 0, 1); label = `📈 YTD ${sy}`; }
 
             document.getElementById('shift-label').innerText = label;
-            filteredLogs = rawData.logs.slice(1).filter(l => { 
-                const t = parseSheetDate(l[1]); 
-                return t >= start && t < end; 
-            });
+            filteredLogs = rawData.logs.slice(1).filter(l => { const t = parseSheetDate(l[1]); return t >= start && t < end; });
         }
 
         function renderAll() {
             const total = filteredLogs.reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
             document.getElementById('stat-total-qty').innerText = total.toLocaleString();
-            const getQty = (sn) => filteredLogs.filter(l => sn.includes(l[3])).reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
-            document.getElementById('val-source-1').innerText = getQty(["งานหล่น ใต้เครื่อง", "งานตกใต้เครื่อง"]).toLocaleString();
-            document.getElementById('val-source-2').innerText = getQty(["งาน Reject จากเครื่อง", "Reject เครื่อง"]).toLocaleString();
-            document.getElementById('val-source-3').innerText = getQty(["งานใน Yellow Box", "กล่องเหลือง"]).toLocaleString();
-            
             document.getElementById('logs-tbody').innerHTML = [...filteredLogs].reverse().map(l => `
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="p-2 font-bold text-slate-700">${l[2]}<div class="text-[8px] text-slate-400 font-mono">${parseSheetDate(l[1]).toLocaleString('th-TH', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}</div></td>
-                    <td class="p-2 font-bold text-emerald-700"><div>${l[4]}</div><div class="text-[9px] text-slate-500 font-normal">${l[5]}</div></td>
+                    <td class="p-2 font-mono text-slate-400 font-bold">${parseSheetDate(l[1]).toLocaleString('th-TH', {hour:'2-digit', minute:'2-digit'})}</td>
+                    <td class="p-2 font-bold text-slate-700"><div>${l[4]}</div><div class="text-[9px] text-slate-500 font-normal italic">${l[5]}</div></td>
                     <td class="p-2 text-right font-black text-rose-500 text-sm">${(parseInt(l[6]) || 0).toLocaleString()}</td>
                     <td class="p-2 text-right"><button onclick="editEntry('${l[0]}')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">✏️</button></td>
                 </tr>`).join('');
@@ -436,7 +344,7 @@
             });
         }
 
-        function openModal() { document.getElementById('recordModal').classList.remove('hide'); document.getElementById('scrapForm').reset(); document.getElementById('in-id').value = ""; document.getElementById('modal-title').innerText = "New Scrap Record"; }
+        function openModal() { document.getElementById('recordModal').classList.remove('hide'); document.getElementById('scrapForm').reset(); document.getElementById('in-id').value = ""; document.getElementById('modal-title').innerText = "บันทึกงานเสีย"; }
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
         function openManual() { document.getElementById('manualModal').classList.remove('hide'); }
         function closeManual() { document.getElementById('manualModal').classList.add('hide'); }
@@ -445,18 +353,26 @@
             const e = rawData.logs.find(l => l[0] === id);
             if (!e) return;
             openModal();
-            document.getElementById('modal-title').innerText = "Edit Record";
-            document.getElementById('in-id').value = e[0]; document.getElementById('in-staff').value = e[2]; document.getElementById('in-source').value = e[3]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6];
+            document.getElementById('modal-title').innerText = "แก้ไขข้อมูล";
+            document.getElementById('in-id').value = e[0]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6];
         }
 
         document.getElementById('scrapForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "PROCESSING...";
+            const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "กำลังบันทึก...";
             const id = document.getElementById('in-id').value;
-            const p = { action: id ? 'edit' : 'create', id, staff: document.getElementById('in-staff').value, source: document.getElementById('in-source').value, model: document.getElementById('in-model').value, defect: document.getElementById('in-defect').value, qty: document.getElementById('in-qty').value };
+            const p = { 
+                action: id ? 'edit' : 'create', 
+                id, 
+                staff: "Operator", 
+                source: "Production Line", 
+                model: document.getElementById('in-model').value, 
+                defect: document.getElementById('in-defect').value, 
+                qty: document.getElementById('in-qty').value 
+            };
             try { await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(p) }); showToast("Success!", "#3dcd58"); closeModal(); fetchAllData(); }
             catch (err) { showToast("Failed!", "#ef4444"); }
-            finally { btn.disabled = false; btn.innerText = "SAVE DATA"; }
+            finally { btn.disabled = false; btn.innerText = "บันทึกข้อมูลทันที"; }
         });
 
         function showToast(m, c) { const t = document.getElementById('toast'); t.innerText = m; t.style.backgroundColor = c; t.classList.remove('hide'); setTimeout(() => t.classList.add('hide'), 3000); }
@@ -465,7 +381,7 @@
             let csv = "\ufeff";
             if (t === 'logs') { csv += "ID,Time,Staff,Source,Model,Defect,Qty\n"; filteredLogs.forEach(l => csv += `${l[0]},${l[1]},${l[2]},${l[3]},${l[4]},"${l[5]}",${l[6]}\n`); }
             else { csv += "Part Number,Total Explosion Qty\n"; const bm = calculateCurrentBOM(); Object.keys(bm).forEach(p => { if (bm[p] > 0) csv += `${p},${bm[p]}\n`; }); }
-            const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `${t}_${currentMode}_report.csv`; l.click();
+            const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `${t}_report.csv`; l.click();
         }
 
         function calculateCurrentBOM() {
