@@ -33,21 +33,22 @@
 </head>
 <body class="p-0 m-0 overflow-x-hidden">
 
+    <!-- หน้าจอรอโหลด -->
     <div id="loading" class="loading-overlay">
         <div class="text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58] mx-auto"></div>
-            <p class="mt-2 font-bold text-slate-500 italic text-xs">ใจเย็นๆ รอแปปนึงนะ...</p>
+            <p class="mt-2 font-bold text-slate-500 italic text-xs tracking-widest uppercase">Fetching Live Data...</p>
         </div>
     </div>
     
     <div id="toast" class="toast hide"></div>
 
-    <!-- Header -->
+    <!-- แถบเมนูด้านบน -->
     <header class="bg-schneider text-white p-3 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="text-center lg:text-left">
                 <h1 class="text-base font-black uppercase tracking-tighter">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal">Road to 70% OEE</span></h1>
-                <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">ตรวจสอบข้อมูลกะทำงาน...</p>
+                <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">กำลังประบุช่วงเวลากะทำงาน...</p>
             </div>
             
             <div class="flex flex-wrap items-center justify-center gap-2">
@@ -82,23 +83,21 @@
     </header>
 
     <main class="max-w-7xl mx-auto p-3 space-y-4">
-        <!-- Dashboard Content -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div class="glass-card p-6 rounded-2xl border-l-8 border-emerald-500 text-center flex flex-col justify-center shadow-sm">
                 <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">Total Scrap Quantity</p>
                 <h2 id="stat-total-qty" class="text-5xl font-black text-slate-800 tracking-tighter">0</h2>
             </div>
-            <div class="col-span-2 glass-card p-6 rounded-2xl bg-emerald-600 flex flex-col items-center justify-center shadow-md relative overflow-hidden">
+            <div class="col-span-2 glass-card p-6 rounded-2xl bg-emerald-600 flex flex-col items-center justify-center shadow-md relative overflow-hidden text-center">
                 <div class="absolute top-0 right-0 p-4 opacity-10">
                     <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3m4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
                 </div>
                 <h2 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 rally-text italic">Road to 70% OEE</h2>
-                <p class="text-emerald-100 text-xl md:text-2xl font-bold italic text-center">"Domae Sub Welding Team!"</p>
+                <p class="text-emerald-100 text-xl md:text-3xl font-black italic uppercase">Domae Sub Welding Team!</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <!-- Logs Table -->
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1 text-slate-400 font-black uppercase italic tracking-tighter">
                     <span>📋 Recent Logs</span>
@@ -116,7 +115,6 @@
                 </div>
             </div>
 
-            <!-- Charts Section -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                     <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-3 text-schneider">Pareto: Defect Breakdown</h3>
@@ -140,11 +138,11 @@
         </div>
     </main>
 
-    <!-- RECORD MODAL -->
+    <!-- RECORD MODAL (Ultra Lean) -->
     <div id="recordModal" class="modal hide">
         <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl space-y-6 m-4 border-t-8 border-schneider">
             <div class="flex justify-between items-center border-b pb-4 text-schneider">
-                <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter italic">บันทึกงานเสีย</h2>
+                <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter italic text-schneider">บันทึกงานเสีย</h2>
                 <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-3xl font-light">&times;</button>
             </div>
             <form id="scrapForm" class="space-y-4 text-[13px]">
@@ -187,7 +185,7 @@
                     <div class="step-number">2</div>
                     <div class="space-y-2 flex-1">
                         <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">เลือก & ใส่ยอด</h4>
-                        <p class="text-sm">เลือก <span class="font-bold text-slate-700">รุ่นสินค้า</span> ➔ <span class="font-bold text-slate-700">อาการเสีย</span> ➔ <span class="font-bold text-rose-500 underline">ใส่จำนวนชิ้น</span></p>
+                        <p class="text-sm">เลือก <span class="font-bold text-slate-700">รุ่นสินค้า</span> ➔ <span class="font-bold text-slate-700">อาการเสีย</span> ➔ <span class="font-bold text-rose-500 underline text-base">ใส่จำนวนชิ้น</span></p>
                     </div>
                 </div>
                 <div class="flex gap-6 items-start">
@@ -198,19 +196,18 @@
                     </div>
                 </div>
                 <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg text-center font-bold italic text-sm">
-                    🏁 เป้าหมาย OEE 70% เริ่มต้นที่วินัยการคีย์ข้อมูล!
+                    🏁 เป้าหมาย OEE 70% | Domae Sub Welding Team!
                 </div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center">
-                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg active:scale-95">รับทราบ ลุย!</button>
+                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg active:scale-95">ลุย!</button>
             </div>
         </div>
     </div>
 
     <script>
-        // UPDATE: อัปเดต URL ใหม่ที่คุณบอลให้มาเรียบร้อยครับ
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMmJJ5PHQrGeaUC68PhKmeBKTaXIwskZHzOIeiA38zHK-tEBeOmvEUE3vq11i2DVYR/exec';
-        const MODEL_TO_PART = { "Domae 16A 1P": "GHM10369B-BOI", "Easy9 16A 1P": "GHM10369BVF-BOI", "IK60 16A 1P": "GHM10369B-BOI(CN)", "IK60 16A 3/4P - IK20A 1/2P": "GHM10369C-BOI(CN)", "Domae Easy9 16A 3/4P - IK20A 1/2P": "GHM10740A-BOI" };
+        // อัปเดต URL ใหม่เรียบร้อยครับ
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUZpmS-_QxEeddGtp2Kxbkee7qM9MKH2V7KYFDOl8VGVF6CMaCxBA5gP0GEk0D_cgD/exec';
         
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
         let isFirstLoad = true;
@@ -233,12 +230,22 @@
             if (isFirstLoad) document.getElementById('loading').classList.remove('hide');
             try {
                 const response = await fetch(APPS_SCRIPT_URL);
-                rawData = await response.json();
+                const result = await response.json();
+                
+                rawData.logs = result.logs || [];
+                rawData.master = result.master || [];
+                rawData.matrix = result.matrix || [];
+
                 updateDropdowns();
                 processShiftData();
                 renderAll();
-            } catch (err) { showToast("Connection Error!", "#ef4444"); }
-            finally { document.getElementById('loading').classList.add('hide'); isFirstLoad = false; }
+            } catch (err) { 
+                console.error("Fetch error:", err);
+                showToast("Connection Error!", "#ef4444"); 
+            } finally { 
+                document.getElementById('loading').classList.add('hide'); 
+                isFirstLoad = false; 
+            }
         }
 
         function parseSheetDate(dateStr) {
@@ -257,8 +264,14 @@
 
         function updateDropdowns() {
             const mSelect = document.getElementById('in-model'), dSelect = document.getElementById('in-defect');
-            if (rawData.master.length > 0) mSelect.innerHTML = rawData.master.slice(1).map(r => r[0]).filter(v => v && v !== 'Common').map(m => `<option value="${m}">${m}</option>`).join('');
-            if (rawData.matrix.length > 0) dSelect.innerHTML = rawData.matrix.slice(1).map(r => r[0]).filter(v => v).map(d => `<option value="${d}">${d}</option>`).join('');
+            if (rawData.master && rawData.master.length > 1) {
+                const models = rawData.master.slice(1).map(r => r[0]).filter(v => v && v !== 'Common' && v !== 'Model');
+                mSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+            }
+            if (rawData.matrix && rawData.matrix.length > 1) {
+                const defects = rawData.matrix.slice(1).map(r => r[0]).filter(v => v && v !== "Defect");
+                dSelect.innerHTML = defects.map(d => `<option value="${d}">${d}</option>`).join('');
+            }
             if (isFirstLoad) {
                 const now = new Date();
                 document.getElementById('sel-month').value = now.getMonth();
@@ -279,14 +292,30 @@
                 } else {
                     cs.setHours(1, 0, 0, 0);
                 }
-                if (currentMode === 'current') { start = new Date(cs); end = new Date(cs.getTime() + 12 * 3600000); label = "🕒 Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; }
-                else { end = new Date(cs); start = new Date(cs.getTime() - 12 * 3600000); label = "⏮️ Prev Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; }
-            } else if (currentMode === 'month') { start = new Date(sy, sm, 1); end = new Date(sy, sm + 1, 1); label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; }
-            else if (currentMode === 'year') { start = new Date(sy, 0, 1); end = new Date(sy + 1, 0, 1); label = `📊 Annual ${sy}`; }
-            else { start = new Date(sy, 0, 1); end = (currentMode === 'ytd' && sy === now.getFullYear()) ? now : new Date(sy + 1, 0, 1); label = `📈 YTD ${sy}`; }
+                if (currentMode === 'current') { 
+                    start = new Date(cs); 
+                    end = new Date(cs.getTime() + 12 * 3600000); 
+                    label = "🕒 Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
+                } else { 
+                    end = new Date(cs); 
+                    start = new Date(cs.getTime() - 12 * 3600000); 
+                    label = "⏮️ Prev Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
+                }
+            } else if (currentMode === 'month') { 
+                start = new Date(sy, sm, 1); end = new Date(sy, sm + 1, 1); 
+                label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; 
+            } else if (currentMode === 'year') { 
+                start = new Date(sy, 0, 1); end = new Date(sy + 1, 0, 1); 
+                label = `📊 Annual ${sy}`; 
+            } else { 
+                start = new Date(sy, 0, 1); end = (currentMode === 'ytd' && sy === now.getFullYear()) ? now : new Date(sy + 1, 0, 1); 
+                label = `📈 YTD ${sy}`; 
+            }
 
             document.getElementById('shift-label').innerText = label;
-            filteredLogs = rawData.logs.slice(1).filter(l => { const t = parseSheetDate(l[1]); return t >= start && t < end; });
+            if (rawData.logs && rawData.logs.length > 1) {
+                filteredLogs = rawData.logs.slice(1).filter(l => { const t = parseSheetDate(l[1]); return t >= start && t < end; });
+            } else { filteredLogs = []; }
         }
 
         function renderAll() {
@@ -303,41 +332,34 @@
         }
 
         function renderCharts() {
-            const dMap = {}; filteredLogs.forEach(l => { dMap[l[5]] = (dMap[l[5]] || 0) + (parseInt(l[6]) || 0); });
+            const dMap = {}; filteredLogs.forEach(l => { const dName = l[5] || "Unknown"; dMap[dName] = (dMap[dName] || 0) + (parseInt(l[6]) || 0); });
             const ds = Object.entries(dMap).sort((a,b) => b[1]-a[1]);
             const dynamicHeightD = Math.max(400, ds.length * 55);
-            const ctxD = document.getElementById('defectChart');
-            ctxD.parentNode.style.height = dynamicHeightD + "px";
+            const ctxD = document.getElementById('defectChart'); ctxD.parentNode.style.height = dynamicHeightD + "px";
 
             if (charts.defect) charts.defect.destroy();
             charts.defect = new Chart(ctxD.getContext('2d'), { 
-                type: 'bar', 
-                data: { labels: ds.map(d => wrapText(d[0], 30)), datasets: [{ data: ds.map(d => d[1]), backgroundColor: '#f43f5e', borderRadius: 4 }] }, 
+                type: 'bar', data: { labels: ds.map(d => wrapText(d[0], 30)), datasets: [{ data: ds.map(d => d[1]), backgroundColor: '#f43f5e', borderRadius: 4 }] }, 
                 options: { 
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
-                    layout: { padding: { right: 60, left: 10 } }, 
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, layout: { padding: { right: 60, left: 10 } }, 
                     plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', color: '#000', font: { weight: 'bold', size: 10, family: 'Sarabun' }, formatter: (v) => v.toLocaleString() } }, 
                     scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, family: 'Sarabun' }, autoSkip: false, padding: 10 } } } 
                 } 
             });
 
-            const bMap = {}; const mH = rawData.matrix[0], mR = rawData.matrix.slice(1); if(mH) mH.slice(1).forEach(p => bMap[p.trim()] = 0);
-            filteredLogs.forEach(l => {
-                const u = MODEL_TO_PART[l[4]], row = mR.find(r => r[0] === l[5]);
-                if (row) mH.slice(1).forEach((p, i) => { const cp = p.trim(); if (parseInt(row[i+1]) > 0) { if (Object.values(MODEL_TO_PART).includes(cp)) { if (cp === u) bMap[cp] += parseInt(l[6]); } else bMap[cp] += parseInt(l[6]); } });
-            });
+            const bMap = {}; if (rawData.matrix && rawData.matrix.length > 0) {
+                const mH = rawData.matrix[0]; const mR = rawData.matrix.slice(1); mH.slice(1).forEach(p => bMap[p.trim()] = 0);
+                filteredLogs.forEach(l => { const row = mR.find(r => r[0] === l[5]); if (row) mH.slice(1).forEach((p, i) => { const cp = p.trim(); if (parseInt(row[i+1]) > 0) bMap[cp] += parseInt(l[6]); }); });
+            }
             const bl = Object.keys(bMap).filter(k => bMap[k] > 0);
             const dynamicHeightB = Math.max(400, bl.length * 50);
-            const ctxB = document.getElementById('bomChart');
-            ctxB.parentNode.style.height = dynamicHeightB + "px";
+            const ctxB = document.getElementById('bomChart'); ctxB.parentNode.style.height = dynamicHeightB + "px";
 
             if (charts.bom) charts.bom.destroy();
             charts.bom = new Chart(ctxB.getContext('2d'), { 
-                type: 'bar', 
-                data: { labels: bl.map(l => wrapText(l, 30)), datasets: [{ data: bl.map(l => bMap[l]), backgroundColor: bl.map(l => l.includes('GHM') ? '#3dcd58' : '#94a3b8'), borderRadius: 4 }] }, 
+                type: 'bar', data: { labels: bl.map(l => wrapText(l, 30)), datasets: [{ data: bl.map(l => bMap[l]), backgroundColor: bl.map(l => l.includes('GHM') ? '#3dcd58' : '#94a3b8'), borderRadius: 4 }] }, 
                 options: { 
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
-                    layout: { padding: { right: 60, left: 10 } }, 
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, layout: { padding: { right: 60, left: 10 } }, 
                     plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', color: '#000', font: { weight: 'bold', size: 10, family: 'Sarabun' }, formatter: (v) => v.toLocaleString() } }, 
                     scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, family: 'Sarabun' }, autoSkip: false, padding: 10 } } } 
                 } 
@@ -348,56 +370,25 @@
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
         function openManual() { document.getElementById('manualModal').classList.remove('hide'); }
         function closeManual() { document.getElementById('manualModal').classList.add('hide'); }
-
-        function editEntry(id) {
-            const e = rawData.logs.find(l => l[0] === id);
-            if (!e) return;
-            openModal();
-            document.getElementById('modal-title').innerText = "แก้ไขข้อมูล";
-            document.getElementById('in-id').value = e[0]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6];
-        }
-
-        document.getElementById('scrapForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "กำลังบันทึก...";
-            const id = document.getElementById('in-id').value;
-            const p = { 
-                action: id ? 'edit' : 'create', 
-                id, 
-                staff: "Operator", 
-                source: "Production Line", 
-                model: document.getElementById('in-model').value, 
-                defect: document.getElementById('in-defect').value, 
-                qty: document.getElementById('in-qty').value 
-            };
-            try { await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(p) }); showToast("Success!", "#3dcd58"); closeModal(); fetchAllData(); }
-            catch (err) { showToast("Failed!", "#ef4444"); }
-            finally { btn.disabled = false; btn.innerText = "บันทึกข้อมูลทันที"; }
+        function editEntry(id) { const e = rawData.logs.find(l => l[0] === id); if (!e) return; openModal(); document.getElementById('modal-title').innerText = "แก้ไขข้อมูล"; document.getElementById('in-id').value = e[0]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6]; }
+        
+        document.getElementById('scrapForm').addEventListener('submit', async (e) => { 
+            e.preventDefault(); const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "กำลังบันทึก..."; 
+            const id = document.getElementById('in-id').value; 
+            const p = { action: id ? 'edit' : 'create', id, staff: "Operator", source: "Production Line", model: document.getElementById('in-model').value, defect: document.getElementById('in-defect').value, qty: document.getElementById('in-qty').value }; 
+            try { await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(p) }); showToast("บันทึกสำเร็จ!", "#3dcd58"); closeModal(); fetchAllData(); } 
+            catch (err) { showToast("บันทึกล้มเหลว!", "#ef4444"); } finally { btn.disabled = false; btn.innerText = "บันทึกข้อมูลทันที"; } 
         });
 
         function showToast(m, c) { const t = document.getElementById('toast'); t.innerText = m; t.style.backgroundColor = c; t.classList.remove('hide'); setTimeout(() => t.classList.add('hide'), 3000); }
-        function exportToExcel(t) {
-            if (filteredLogs.length === 0) return showToast("No Data!", "#6b7280");
-            let csv = "\ufeff";
-            if (t === 'logs') { csv += "ID,Time,Staff,Source,Model,Defect,Qty\n"; filteredLogs.forEach(l => csv += `${l[0]},${l[1]},${l[2]},${l[3]},${l[4]},"${l[5]}",${l[6]}\n`); }
-            else { csv += "Part Number,Total Explosion Qty\n"; const bm = calculateCurrentBOM(); Object.keys(bm).forEach(p => { if (bm[p] > 0) csv += `${p},${bm[p]}\n`; }); }
-            const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `${t}_report.csv`; l.click();
-        }
-
-        function calculateCurrentBOM() {
-            const bMap = {}; const mH = rawData.matrix[0], mR = rawData.matrix.slice(1); if(mH) mH.slice(1).forEach(p => bMap[p.trim()] = 0);
-            filteredLogs.forEach(l => { const u = MODEL_TO_PART[l[4]], row = mR.find(r => r[0] === l[5]); if (row) mH.slice(1).forEach((p, i) => { const cp = p.trim(); if (parseInt(row[i+1]) > 0) { if (Object.values(MODEL_TO_PART).includes(cp)) { if (cp === u) bMap[cp] += parseInt(l[6]); } else bMap[cp] += parseInt(l[6]); } }); });
-            return bMap;
-        }
-
-        function setFilterMode(m) { currentMode = m; ['btn-current', 'btn-previous', 'btn-ytd'].forEach(id => document.getElementById(id).classList.toggle('btn-active', id === 'btn-' + m)); processShiftData(); renderAll(); }
+        function exportToExcel(t) { if (filteredLogs.length === 0) return showToast("No Data!", "#6b7280"); let csv = "\ufeff"; if (t === 'logs') { csv += "ID,Time,Staff,Source,Model,Defect,Qty\n"; filteredLogs.forEach(l => csv += `${l[0]},${l[1]},${l[2]},${l[3]},${l[4]},"${l[5]}",${l[6]}\n`); } const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `${t}_report.csv`; l.click(); }
+        function setFilterMode(m) { currentMode = m; ['btn-current', 'btn-previous', 'btn-ytd'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.classList.toggle('btn-active', id === 'btn-' + m); }); processShiftData(); renderAll(); }
+        window.onclick = function(event) { if (event.target == document.getElementById('manualModal')) closeManual(); if (event.target == document.getElementById('recordModal')) closeModal(); }
         
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('manualModal')) closeManual();
-            if (event.target == document.getElementById('recordModal')) closeModal();
-        }
-
-        window.onload = () => { Chart.register(ChartDataLabels); fetchAllData(); };
+        window.onload = () => { 
+            Chart.register(ChartDataLabels); 
+            fetchAllData(); 
+        };
         setInterval(fetchAllData, 300000);
     </script>
 </body>
