@@ -47,8 +47,8 @@
     <header class="bg-schneider text-white p-3 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="text-center lg:text-left">
-                <h1 class="text-base font-black uppercase tracking-tighter">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal">Road to 70% OEE</span></h1>
-                <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">กำลังประบุช่วงเวลากะทำงาน...</p>
+                <h1 class="text-base font-black uppercase tracking-tighter text-white">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal">Road to 70% OEE</span></h1>
+                <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">กำลังระบุช่วงเวลากะทำงาน...</p>
             </div>
             
             <div class="flex flex-wrap items-center justify-center gap-2">
@@ -101,7 +101,7 @@
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1 text-slate-400 font-black uppercase italic tracking-tighter">
                     <span>📋 Recent Logs</span>
-                    <button onclick="exportToExcel('logs')" class="text-emerald-600 hover:underline text-[9px]">Export CSV</button>
+                    <button onclick="exportToExcel('logs')" class="text-emerald-600 hover:underline text-[9px]">Export Logs CSV</button>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[850px]">
                     <div class="overflow-y-auto h-full text-[10px]">
@@ -170,8 +170,8 @@
     <div id="manualModal" class="modal hide">
         <div class="bg-white w-full max-w-xl max-h-[90vh] p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col m-4">
             <div class="schneider-green p-5 flex justify-between items-center text-white">
-                <h2 class="text-lg font-black uppercase tracking-widest italic">📖 คู่มือบันทึกงานเสีย (Lean)</h2>
-                <button onclick="closeManual()" class="hover:bg-black/10 w-8 h-8 rounded-full flex items-center justify-center text-2xl font-bold transition-all">&times;</button>
+                <h2 class="text-lg font-black uppercase tracking-widest italic text-white">📖 คู่มือบันทึกงานเสีย (Lean)</h2>
+                <button onclick="closeManual()" class="hover:bg-black/10 w-8 h-8 rounded-full flex items-center justify-center text-2xl font-bold transition-all text-white">&times;</button>
             </div>
             <div class="p-8 overflow-y-auto space-y-10 text-slate-600">
                 <div class="flex gap-6 items-start">
@@ -195,7 +195,7 @@
                         <p class="text-sm">กดปุ่มสีเขียว <span class="font-bold underline text-emerald-600">"บันทึกข้อมูลทันที"</span></p>
                     </div>
                 </div>
-                <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg text-center font-bold italic text-sm">
+                <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg text-center font-bold italic text-sm text-white">
                     🏁 เป้าหมาย OEE 70% | Domae Sub Welding Team!
                 </div>
             </div>
@@ -206,7 +206,6 @@
     </div>
 
     <script>
-        // อัปเดต URL ใหม่เรียบร้อยครับ
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUZpmS-_QxEeddGtp2Kxbkee7qM9MKH2V7KYFDOl8VGVF6CMaCxBA5gP0GEk0D_cgD/exec';
         
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
@@ -381,7 +380,58 @@
         });
 
         function showToast(m, c) { const t = document.getElementById('toast'); t.innerText = m; t.style.backgroundColor = c; t.classList.remove('hide'); setTimeout(() => t.classList.add('hide'), 3000); }
-        function exportToExcel(t) { if (filteredLogs.length === 0) return showToast("No Data!", "#6b7280"); let csv = "\ufeff"; if (t === 'logs') { csv += "ID,Time,Staff,Source,Model,Defect,Qty\n"; filteredLogs.forEach(l => csv += `${l[0]},${l[1]},${l[2]},${l[3]},${l[4]},"${l[5]}",${l[6]}\n`); } const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `${t}_report.csv`; l.click(); }
+        
+        function exportToExcel(t) {
+            if (filteredLogs.length === 0) return showToast("ไม่มีข้อมูลที่จะส่งออก!", "#6b7280");
+            
+            let csvContent = "\ufeff"; // BOM for Thai Excel
+            let fileName = "";
+
+            if (t === 'logs') {
+                csvContent += "ID,Time,Model,Defect,Qty\n";
+                filteredLogs.forEach(l => {
+                    const timeStr = parseSheetDate(l[1]).toLocaleString('th-TH');
+                    csvContent += `${l[0]},${timeStr},${l[4]},"${l[5]}",${l[6]}\n`;
+                });
+                fileName = `Scrap_Logs_${currentMode}_${new Date().toLocaleDateString()}.csv`;
+            } else if (t === 'bom') {
+                csvContent += "Part Number,Total Impact Qty\n";
+                const bMap = {}; 
+                if (rawData.matrix && rawData.matrix.length > 0) {
+                    const mH = rawData.matrix[0]; 
+                    const mR = rawData.matrix.slice(1);
+                    mH.slice(1).forEach(p => bMap[p.trim()] = 0);
+                    
+                    filteredLogs.forEach(l => {
+                        const row = mR.find(r => r[0] === l[5]);
+                        if (row) {
+                            mH.slice(1).forEach((p, i) => {
+                                const cp = p.trim();
+                                if (parseInt(row[i+1]) > 0) bMap[cp] += parseInt(l[6]);
+                            });
+                        }
+                    });
+                }
+                
+                Object.keys(bMap).forEach(part => {
+                    if (bMap[part] > 0) csvContent += `${part},${bMap[part]}\n`;
+                });
+                fileName = `BOM_Explode_${currentMode}_${new Date().toLocaleDateString()}.csv`;
+            }
+
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("ส่งออกไฟล์สำเร็จ!", "#3dcd58");
+        }
+
         function setFilterMode(m) { currentMode = m; ['btn-current', 'btn-previous', 'btn-ytd'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.classList.toggle('btn-active', id === 'btn-' + m); }); processShiftData(); renderAll(); }
         window.onclick = function(event) { if (event.target == document.getElementById('manualModal')) closeManual(); if (event.target == document.getElementById('recordModal')) closeModal(); }
         
