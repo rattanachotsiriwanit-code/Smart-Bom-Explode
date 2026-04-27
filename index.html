@@ -389,7 +389,8 @@
             Chart.register(ChartDataLabels); 
             fetchAllData(); 
         };
-        setInterval(fetchAllData, 300000);
+        // ปรับเวลา Refresh เป็น 30 นาที (1,800,000 ms)
+        setInterval(fetchAllData, 1800000);
     </script>
 </body>
 </html>
