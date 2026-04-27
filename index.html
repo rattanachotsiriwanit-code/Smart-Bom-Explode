@@ -163,7 +163,7 @@
         </div>
     </div>
 
-    <!-- MANUAL MODAL (FULL DETAILED MANUAL) -->
+    <!-- MANUAL MODAL -->
     <div id="manualModal" class="modal hide">
         <div class="bg-white w-full max-w-2xl max-h-[90vh] p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col m-4">
             <div class="schneider-green p-5 flex justify-between items-center text-white">
@@ -171,14 +171,13 @@
                 <button onclick="closeManual()" class="hover:bg-black/10 w-8 h-8 rounded-full flex items-center justify-center text-2xl font-bold transition-all">&times;</button>
             </div>
             <div class="p-8 overflow-y-auto space-y-12 text-slate-600">
-                
-                <!-- Step 1: Entry -->
+                <!-- Step 1 -->
                 <div class="flex gap-6 items-start">
                     <div class="step-number">1</div>
                     <div class="space-y-4 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase">การเริ่มบันทึกข้อมูล</h4>
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">การเริ่มบันทึกข้อมูล</h4>
                         <p class="text-sm">เมื่อตรวจพบงานเสีย ให้กดปุ่ม <span class="font-bold text-emerald-600 underline text-base">"➕ RECORD"</span> ที่อยู่มุมบนขวาของหน้าจอ iPad</p>
-                        <div class="bg-slate-50 rounded-2xl overflow-hidden border-2 border-dashed border-slate-200 flex items-center justify-center p-4">
+                        <div class="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4">
                              <svg viewBox="0 0 300 100" class="w-full h-auto max-w-[280px]">
                                 <rect width="300" height="40" fill="#3dcd58" rx="10" />
                                 <rect x="210" y="8" width="80" height="24" rx="6" fill="white" />
@@ -191,11 +190,11 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Filling -->
+                <!-- Step 2 -->
                 <div class="flex gap-6 items-start">
                     <div class="step-number">2</div>
                     <div class="space-y-4 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase">กรอกรายละเอียด (5 จุดสำคัญ)</h4>
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">กรอกรายละเอียด (5 จุดสำคัญ)</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <ul class="space-y-2 text-sm">
                                 <li class="flex gap-2">✅ <span class="font-bold text-slate-700">Staff:</span> ชื่อผู้บันทึก</li>
@@ -213,11 +212,11 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Editing -->
+                <!-- Step 3 -->
                 <div class="flex gap-6 items-start">
                     <div class="step-number">3</div>
                     <div class="space-y-4 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase">การแก้ไขข้อมูล (✏️)</h4>
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">การแก้ไขข้อมูล (✏️)</h4>
                         <p class="text-sm">หากคีย์ผิด ให้กดรูป <span class="font-bold text-emerald-600 text-lg">ดินสอ ✏️</span> ท้ายแถวของคุณในตาราง <span class="underline">Logs Table</span> ห้ามคีย์ซ้ำบรรทัดใหม่</p>
                         <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 flex justify-between items-center shadow-sm">
                             <div class="flex flex-col">
@@ -226,19 +225,51 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-emerald-500 font-bold border-2 border-emerald-400 bg-white rounded-lg px-2 py-1 text-base shadow-sm cursor-pointer">✏️</span>
-                                <div class="animate-pulse">👈 กดตรงนี้</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tip -->
+                <!-- Step 4: Explanation for Filters -->
+                <div class="flex gap-6 items-start">
+                    <div class="step-number">4</div>
+                    <div class="space-y-4 flex-1">
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">การใช้ปุ่ม Filter (เลือกดูข้อมูล)</h4>
+                        <div class="space-y-4">
+                            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 flex items-center justify-center">
+                                <svg viewBox="0 0 350 80" class="w-full h-auto max-w-[320px]">
+                                    <rect x="10" y="10" width="80" height="30" rx="4" fill="#2e9d44" />
+                                    <text x="32" y="30" font-size="10" fill="white" font-weight="bold">Shift</text>
+                                    <rect x="100" y="10" width="150" height="30" rx="4" fill="#065f46" fill-opacity="0.4" />
+                                    <text x="110" y="30" font-size="10" fill="white" font-weight="bold">Jan ▼ 2026 ▼</text>
+                                    <rect x="260" y="10" width="80" height="30" rx="4" fill="#3dcd58" fill-opacity="0.2" />
+                                    <text x="285" y="30" font-size="10" fill="#3dcd58" font-weight="bold">YTD</text>
+                                </svg>
+                            </div>
+                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                    <span class="font-bold text-emerald-600">Shift:</span> ดูยอดของกะปัจจุบัน (ตัดกะที่ 13:00 และ 01:00)
+                                </li>
+                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                    <span class="font-bold text-emerald-600">Prev:</span> ดูยอดย้อนหลังของกะที่แล้วทันที
+                                </li>
+                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                    <span class="font-bold text-emerald-600">Month / Year:</span> เลือกเดือนและปีเพื่อดูยอดย้อนหลังรายเดือน
+                                </li>
+                                <li class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                    <span class="font-bold text-emerald-600">YTD:</span> ดูยอดสะสมตั้งแต่ 1 ม.ค. จนถึงปัจจุบันของปีที่เลือก
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg transform rotate-1">
-                    <p class="text-sm font-bold leading-relaxed">💡 ข้อมูลทุกอย่างที่บันทึกจะถูก "ระเบิด BOM" เพื่อวิเคราะห์อะไหล่ที่เสียอัตโนมัติที่กราฟด้านล่างหน้าจอครับ</p>
+                    <p class="text-sm font-bold leading-relaxed">💡 ระบบจะคำนวณแยกกะและระเบิด BOM ให้อัตโนมัติตามช่วงเวลาที่คุณเลือกดูครับ</p>
                 </div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center">
-                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold hover:bg-slate-700 transition-all uppercase text-xs tracking-widest shadow-lg active:scale-95">เข้าใจแล้ว (ปิดคู่มือ)</button>
+                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-all">เข้าใจแล้ว (ปิดคู่มือ)</button>
             </div>
         </div>
     </div>
@@ -308,15 +339,41 @@
 
             if (currentMode === 'current' || currentMode === 'previous') {
                 let cs = new Date(now);
-                if (hr >= 8 && hr < 20) cs.setHours(8,0,0,0);
-                else { if (hr < 8) cs.setDate(cs.getDate() - 1); cs.setHours(20,0,0,0); }
-                if (currentMode === 'current') { start = new Date(cs); end = new Date(cs.getTime() + 12*3600000); label = "🕒 Shift (" + (start.getHours() === 8 ? "08:00-20:00" : "20:00-08:00") + ")"; }
-                else { end = new Date(cs); start = new Date(cs.getTime() - 12*3600000); label = "⏮️ Prev Shift (" + (start.getHours() === 8 ? "08:00-20:00" : "20:00-08:00") + ")"; }
-            } else if (currentMode === 'month') { start = new Date(sy, sm, 1); end = new Date(sy, sm + 1, 1); label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; }
-            else { start = new Date(sy, 0, 1); end = (currentMode === 'ytd' && sy === now.getFullYear()) ? now : new Date(sy + 1, 0, 1); label = currentMode === 'ytd' ? `📈 YTD ${sy}` : `📊 Annual ${sy}`; }
+                if (hr >= 13 || hr < 1) {
+                    if (hr < 1) cs.setDate(cs.getDate() - 1);
+                    cs.setHours(13, 0, 0, 0);
+                } else {
+                    cs.setHours(1, 0, 0, 0);
+                }
+
+                if (currentMode === 'current') { 
+                    start = new Date(cs); 
+                    end = new Date(cs.getTime() + 12 * 3600000); 
+                    label = "🕒 Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
+                } else { 
+                    end = new Date(cs); 
+                    start = new Date(cs.getTime() - 12 * 3600000); 
+                    label = "⏮️ Prev Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
+                }
+            } else if (currentMode === 'month') { 
+                start = new Date(sy, sm, 1); 
+                end = new Date(sy, sm + 1, 1); 
+                label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; 
+            } else if (currentMode === 'year') {
+                start = new Date(sy, 0, 1);
+                end = new Date(sy + 1, 0, 1);
+                label = `📊 Annual ${sy}`;
+            } else { 
+                start = new Date(sy, 0, 1); 
+                end = (currentMode === 'ytd' && sy === now.getFullYear()) ? now : new Date(sy + 1, 0, 1); 
+                label = `📈 YTD ${sy}`; 
+            }
 
             document.getElementById('shift-label').innerText = label;
-            filteredLogs = rawData.logs.slice(1).filter(l => { const t = parseSheetDate(l[1]); return t >= start && t < end; });
+            filteredLogs = rawData.logs.slice(1).filter(l => { 
+                const t = parseSheetDate(l[1]); 
+                return t >= start && t < end; 
+            });
         }
 
         function renderAll() {
@@ -379,11 +436,8 @@
             });
         }
 
-        // Modal Controls
         function openModal() { document.getElementById('recordModal').classList.remove('hide'); document.getElementById('scrapForm').reset(); document.getElementById('in-id').value = ""; document.getElementById('modal-title').innerText = "New Scrap Record"; }
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
-        
-        // Manual Controls
         function openManual() { document.getElementById('manualModal').classList.remove('hide'); }
         function closeManual() { document.getElementById('manualModal').classList.add('hide'); }
 
