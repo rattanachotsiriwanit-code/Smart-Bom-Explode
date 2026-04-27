@@ -138,7 +138,7 @@
         </div>
     </main>
 
-    <!-- RECORD MODAL (Ultra Lean) -->
+    <!-- RECORD MODAL -->
     <div id="recordModal" class="modal hide">
         <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl space-y-6 m-4 border-t-8 border-schneider">
             <div class="flex justify-between items-center border-b pb-4 text-schneider">
@@ -157,7 +157,7 @@
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1 italic">3. จำนวนชิ้น (Qty)</label>
-                    <input type="number" id="in-qty" value="1" min="1" required class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none font-black text-lg text-schneider">
+                    <input type="number" id="in-qty" placeholder="ใส่จำนวน..." onfocus="this.select()" required class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none font-black text-lg text-schneider">
                 </div>
                 <button type="submit" id="saveBtn" class="w-full bg-schneider text-white py-4 rounded-2xl font-black shadow-xl hover:bg-emerald-600 transition-all mt-6 uppercase tracking-widest text-base active:scale-95">
                     บันทึกข้อมูลทันที
@@ -365,18 +365,76 @@
             });
         }
 
-        function openModal() { document.getElementById('recordModal').classList.remove('hide'); document.getElementById('scrapForm').reset(); document.getElementById('in-id').value = ""; document.getElementById('modal-title').innerText = "บันทึกงานเสีย"; }
+        // แก้ไข: โหลดค่าล่าสุด และเคลียร์ช่องจำนวนให้ว่าง
+        function openModal() { 
+            const modal = document.getElementById('recordModal');
+            const form = document.getElementById('scrapForm');
+            modal.classList.remove('hide'); 
+            form.reset(); 
+            document.getElementById('in-id').value = ""; 
+            document.getElementById('modal-title').innerText = "บันทึกงานเสีย"; 
+            
+            // โหลดค่าล่าสุดจาก localStorage
+            const lastModel = localStorage.getItem('lastModel');
+            const lastDefect = localStorage.getItem('lastDefect');
+            if(lastModel) document.getElementById('in-model').value = lastModel;
+            if(lastDefect) document.getElementById('in-defect').value = lastDefect;
+            
+            // ตั้งค่าช่องจำนวนให้ว่าง (ไม่มีเลข 1 ค้าง)
+            document.getElementById('in-qty').value = "";
+        }
+
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
         function openManual() { document.getElementById('manualModal').classList.remove('hide'); }
         function closeManual() { document.getElementById('manualModal').classList.add('hide'); }
-        function editEntry(id) { const e = rawData.logs.find(l => l[0] === id); if (!e) return; openModal(); document.getElementById('modal-title').innerText = "แก้ไขข้อมูล"; document.getElementById('in-id').value = e[0]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6]; }
+        
+        function editEntry(id) { 
+            const e = rawData.logs.find(l => l[0] === id); 
+            if (!e) return; 
+            openModal(); 
+            document.getElementById('modal-title').innerText = "แก้ไขข้อมูล"; 
+            document.getElementById('in-id').value = e[0]; 
+            document.getElementById('in-model').value = e[4]; 
+            document.getElementById('in-defect').value = e[5]; 
+            document.getElementById('in-qty').value = e[6]; 
+        }
         
         document.getElementById('scrapForm').addEventListener('submit', async (e) => { 
-            e.preventDefault(); const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "กำลังบันทึก..."; 
+            e.preventDefault(); 
+            const btn = document.getElementById('saveBtn'); 
+            btn.disabled = true; 
+            btn.innerText = "กำลังบันทึก..."; 
+            
             const id = document.getElementById('in-id').value; 
-            const p = { action: id ? 'edit' : 'create', id, staff: "Operator", source: "Production Line", model: document.getElementById('in-model').value, defect: document.getElementById('in-defect').value, qty: document.getElementById('in-qty').value }; 
-            try { await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(p) }); showToast("บันทึกสำเร็จ!", "#3dcd58"); closeModal(); fetchAllData(); } 
-            catch (err) { showToast("บันทึกล้มเหลว!", "#ef4444"); } finally { btn.disabled = false; btn.innerText = "บันทึกข้อมูลทันที"; } 
+            const model = document.getElementById('in-model').value;
+            const defect = document.getElementById('in-defect').value;
+            const qty = document.getElementById('in-qty').value;
+
+            // บันทึกค่าล่าสุดลง localStorage
+            localStorage.setItem('lastModel', model);
+            localStorage.setItem('lastDefect', defect);
+
+            const p = { 
+                action: id ? 'edit' : 'create', 
+                id, 
+                staff: "Operator", 
+                source: "Production Line", 
+                model, 
+                defect, 
+                qty 
+            }; 
+
+            try { 
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(p) }); 
+                showToast("บันทึกสำเร็จ!", "#3dcd58"); 
+                closeModal(); 
+                fetchAllData(); 
+            } catch (err) { 
+                showToast("บันทึกล้มเหลว!", "#ef4444"); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = "บันทึกข้อมูลทันที"; 
+            } 
         });
 
         function showToast(m, c) { const t = document.getElementById('toast'); t.innerText = m; t.style.backgroundColor = c; t.classList.remove('hide'); setTimeout(() => t.classList.add('hide'), 3000); }
@@ -419,7 +477,6 @@
                 fileName = `BOM_Explode_${currentMode}_${new Date().toLocaleDateString()}.csv`;
             }
 
-            // Create and trigger download
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
