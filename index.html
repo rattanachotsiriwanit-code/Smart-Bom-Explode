@@ -52,9 +52,12 @@
             </div>
             
             <div class="flex flex-wrap items-center justify-center gap-2">
+                <!-- ปุ่มกะแบบย้อนหลัง 3 ครั้ง -->
                 <div class="flex bg-black/10 p-1 rounded-lg">
                     <button id="btn-current" onclick="setFilterMode('current')" class="px-2 py-1 rounded-md transition-all btn-active font-bold uppercase text-[9px]">Shift</button>
-                    <button id="btn-previous" onclick="setFilterMode('previous')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px]">Prev</button>
+                    <button id="btn-prev1" onclick="setFilterMode('prev1')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px]">P1</button>
+                    <button id="btn-prev2" onclick="setFilterMode('prev2')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px]">P2</button>
+                    <button id="btn-prev3" onclick="setFilterMode('prev3')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px]">P3</button>
                 </div>
 
                 <div class="flex items-center bg-white/10 p-1 rounded-lg border border-white/20 gap-1">
@@ -283,7 +286,7 @@
             const sm = parseInt(document.getElementById('sel-month').value), sy = parseInt(document.getElementById('sel-year').value);
             let start, end, label;
 
-            if (currentMode === 'current' || currentMode === 'previous') {
+            if (['current', 'prev1', 'prev2', 'prev3'].includes(currentMode)) {
                 let cs = new Date(now);
                 if (hr >= 13 || hr < 1) {
                     if (hr < 1) cs.setDate(cs.getDate() - 1);
@@ -291,15 +294,20 @@
                 } else {
                     cs.setHours(1, 0, 0, 0);
                 }
-                if (currentMode === 'current') { 
-                    start = new Date(cs); 
-                    end = new Date(cs.getTime() + 12 * 3600000); 
-                    label = "🕒 Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
-                } else { 
-                    end = new Date(cs); 
-                    start = new Date(cs.getTime() - 12 * 3600000); 
-                    label = "⏮️ Prev Shift (" + (start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00") + ")"; 
-                }
+
+                let offset = 0;
+                if (currentMode === 'prev1') offset = 1;
+                else if (currentMode === 'prev2') offset = 2;
+                else if (currentMode === 'prev3') offset = 3;
+
+                start = new Date(cs.getTime() - (offset * 12 * 3600000));
+                end = new Date(start.getTime() + 12 * 3600000);
+                
+                const shiftName = start.getHours() === 13 ? "13:00-01:00" : "01:00-13:00";
+                const shiftPrefix = currentMode === 'current' ? "🕒 Current" : "⏮️ " + currentMode.toUpperCase();
+                // แก้ไข: เพิ่มวันที่ของกะเข้าไปใน Label
+                const dateStr = start.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                label = `${shiftPrefix} Shift (${shiftName}) | ${dateStr}`;
             } else if (currentMode === 'month') { 
                 start = new Date(sy, sm, 1); end = new Date(sy, sm + 1, 1); 
                 label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; 
@@ -365,7 +373,6 @@
             });
         }
 
-        // แก้ไข: โหลดค่าล่าสุด และเคลียร์ช่องจำนวนให้ว่าง
         function openModal() { 
             const modal = document.getElementById('recordModal');
             const form = document.getElementById('scrapForm');
@@ -374,13 +381,11 @@
             document.getElementById('in-id').value = ""; 
             document.getElementById('modal-title').innerText = "บันทึกงานเสีย"; 
             
-            // โหลดค่าล่าสุดจาก localStorage
             const lastModel = localStorage.getItem('lastModel');
             const lastDefect = localStorage.getItem('lastDefect');
             if(lastModel) document.getElementById('in-model').value = lastModel;
             if(lastDefect) document.getElementById('in-defect').value = lastDefect;
             
-            // ตั้งค่าช่องจำนวนให้ว่าง (ไม่มีเลข 1 ค้าง)
             document.getElementById('in-qty').value = "";
         }
 
@@ -410,7 +415,6 @@
             const defect = document.getElementById('in-defect').value;
             const qty = document.getElementById('in-qty').value;
 
-            // บันทึกค่าล่าสุดลง localStorage
             localStorage.setItem('lastModel', model);
             localStorage.setItem('lastDefect', defect);
 
@@ -442,7 +446,7 @@
         function exportToExcel(t) {
             if (filteredLogs.length === 0) return showToast("ไม่มีข้อมูลที่จะส่งออก!", "#6b7280");
             
-            let csvContent = "\ufeff"; // BOM for Thai Excel
+            let csvContent = "\ufeff"; 
             let fileName = "";
 
             if (t === 'logs') {
@@ -489,14 +493,23 @@
             showToast("ส่งออกไฟล์สำเร็จ!", "#3dcd58");
         }
 
-        function setFilterMode(m) { currentMode = m; ['btn-current', 'btn-previous', 'btn-ytd'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.classList.toggle('btn-active', id === 'btn-' + m); }); processShiftData(); renderAll(); }
+        function setFilterMode(m) { 
+            currentMode = m; 
+            const shiftButtons = ['current', 'prev1', 'prev2', 'prev3', 'ytd'];
+            shiftButtons.forEach(id => {
+                const btn = document.getElementById('btn-' + id);
+                if (btn) btn.classList.toggle('btn-active', id === m);
+            }); 
+            processShiftData(); 
+            renderAll(); 
+        }
+        
         window.onclick = function(event) { if (event.target == document.getElementById('manualModal')) closeManual(); if (event.target == document.getElementById('recordModal')) closeModal(); }
         
         window.onload = () => { 
             Chart.register(ChartDataLabels); 
             fetchAllData(); 
         };
-        // ปรับเวลา Refresh เป็น 30 นาที (1,800,000 ms)
         setInterval(fetchAllData, 1800000);
     </script>
 </body>
