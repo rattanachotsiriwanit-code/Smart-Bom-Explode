@@ -26,7 +26,6 @@
 </head>
 <body class="p-0 m-0 overflow-x-hidden">
 
-    <!-- Loading Screen -->
     <div id="loading" class="loading-overlay">
         <div class="text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58] mx-auto"></div>
@@ -39,7 +38,7 @@
     <header class="bg-schneider text-white p-3 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="text-center lg:text-left">
-                <h1 class="text-base font-black uppercase tracking-tighter text-white">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal text-white">Road to 70% OEE</span></h1>
+                <h1 class="text-base font-black uppercase tracking-tighter text-white text-white">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal text-white">Road to 70% OEE</span></h1>
                 <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">กำลังระบุช่วงเวลากะทำงาน...</p>
             </div>
             
@@ -91,8 +90,8 @@
                 <div class="absolute top-0 right-0 p-4 opacity-10">
                     <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3m4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
                 </div>
-                <h2 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 rally-text italic">Road to 70% OEE</h2>
-                <p class="text-emerald-100 text-xl md:text-3xl font-black italic uppercase text-white">Domae Sub Welding Team!</p>
+                <h2 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 rally-text italic text-white text-white">Road to 70% OEE</h2>
+                <p class="text-emerald-100 text-xl md:text-3xl font-black italic uppercase text-white text-white">Domae Sub Welding Team!</p>
             </div>
         </div>
 
@@ -124,7 +123,7 @@
 
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic text-schneider">BOM Explosion Analysis</h3>
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic text-schneider text-white">BOM Explosion Analysis</h3>
                         <button onclick="exportToExcel('bom')" class="bg-schneider text-white px-4 py-1.5 rounded-lg font-black shadow hover:bg-emerald-600 transition-all text-[9px] flex items-center gap-1 uppercase tracking-tighter text-white">📥 Export BOM Explode</button>
                     </div>
                     <div class="overflow-y-auto max-h-[850px]">
@@ -170,21 +169,21 @@
                 <div class="flex gap-6 items-start">
                     <div class="step-number">1</div>
                     <div class="space-y-2 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">เปิดหน้าบันทึก</h4>
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider text-white">เปิดหน้าบันทึก</h4>
                         <p class="text-sm">กดปุ่มสีขาว <span class="font-bold text-emerald-600 underline">"➕ RECORD"</span></p>
                     </div>
                 </div>
                 <div class="flex gap-6 items-start">
                     <div class="step-number">2</div>
                     <div class="space-y-2 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">เลือก & ใส่ยอด</h4>
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider text-white">เลือก & ใส่ยอด</h4>
                         <p class="text-sm">ระบบจะจำรุ่นล่าสุดไว้ให้ เลือกอาการเสีย แล้วใส่จำนวน (คลุมดำเลข 1 ให้อัตโนมัติ)</p>
                     </div>
                 </div>
                 <div class="flex gap-6 items-start">
                     <div class="step-number">3</div>
                     <div class="space-y-2 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider">การคัดกรอง</h4>
+                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider text-white">การคัดกรอง</h4>
                         <p class="text-sm">ใช้ปุ่ม **P1-P3** ย้อนหลังกะ หรือเลือก **วันที่** จากปฏิทิน</p>
                     </div>
                 </div>
@@ -323,12 +322,26 @@
             } else { filteredLogs = []; }
         }
 
+        // ปรับปรุงฟังก์ชันตรวจสอบความถูกต้องของ Part (ตัดช่องว่างและวงเล็บออกเพื่อความแม่นยำ)
         function isPartValidForModel(pName, mName, master) {
             if (!master || master.length <= 1) return true;
-            const cP = pName.trim().toLowerCase(), cM = mName.trim().toLowerCase();
-            const row = master.slice(1).find(r => r[1] && r[1].trim().toLowerCase() === cP);
-            if (!row) return true;
-            return (row[0].trim().toLowerCase() === cM || row[0].trim().toLowerCase() === 'common');
+            
+            // Clean names: ลบช่องว่าง, ลบวงเล็บ, ทำให้เป็นตัวเล็ก
+            const clean = (s) => s.toString().split('(')[0].trim().toLowerCase();
+            const cP = clean(pName);
+            const cM = clean(mName);
+            
+            // หา Part นี้ใน BOM_Master
+            const rows = master.slice(1).filter(r => r[1] && clean(r[1]) === cP);
+            
+            // ถ้าไม่เจอใน Master เลย ให้ถือว่าเป็น Common (กันยอดหาย)
+            if (rows.length === 0) return true;
+            
+            // ถ้าเจอ: ต้องเป็นของรุ่นนี้ (Unique) หรือเป็นพาร์ทกลาง (Common)
+            return rows.some(r => {
+                const rowModel = clean(r[0]);
+                return rowModel === cM || rowModel === 'common';
+            });
         }
 
         function calculateBOM() {
@@ -346,6 +359,15 @@
                 });
             }
             return bMap;
+        }
+
+        // ฟังก์ชันช่วยเช็ค Type ของพาร์ทเพื่อระบายสี Chart
+        function getPartType(pName, master) {
+            if (!master || master.length <= 1) return 'Common';
+            const clean = (s) => s.toString().split('(')[0].trim().toLowerCase();
+            const cP = clean(pName);
+            const row = master.slice(1).find(r => r[1] && clean(r[1]) === cP);
+            return row ? row[2] : 'Common'; // คืนค่า Type (Unique/Common)
         }
 
         function renderAll() {
@@ -368,7 +390,19 @@
             const bMap = calculateBOM(); const bl = Object.keys(bMap).filter(k => bMap[k] > 0);
             const ctxB = document.getElementById('bomChart'); ctxB.parentNode.style.height = Math.max(400, bl.length * 50) + "px";
             if (charts.bom) charts.bom.destroy();
-            charts.bom = new Chart(ctxB, { type: 'bar', data: { labels: bl.map(l => wrapText(l)), datasets: [{ data: bl.map(l => bMap[l]), backgroundColor: bl.map(l => l.includes('GHM') ? '#3dcd58' : '#94a3b8'), borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', font: { weight: 'bold' }, formatter: (v) => v.toLocaleString() } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: false } } } } });
+            charts.bom = new Chart(ctxB, { 
+                type: 'bar', 
+                data: { 
+                    labels: bl.map(l => wrapText(l)), 
+                    datasets: [{ 
+                        data: bl.map(l => bMap[l]), 
+                        // เปลี่ยนการระบายสีตาม Type จริงใน BOM_Master
+                        backgroundColor: bl.map(l => getPartType(l, rawData.master) === 'Unique' ? '#3dcd58' : '#94a3b8'), 
+                        borderRadius: 4 
+                    }] 
+                }, 
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', font: { weight: 'bold' }, formatter: (v) => v.toLocaleString() } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: false } } } } 
+            });
         }
 
         function openModal() { 
