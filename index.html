@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domae Scrap Tracking - Master Version</title>
+    <title>Domae Scrap Tracking - Strict Master Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -29,20 +29,20 @@
     <div id="loading" class="loading-overlay">
         <div class="text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58] mx-auto"></div>
-            <p class="mt-2 font-bold text-slate-500 italic text-xs tracking-widest uppercase">ใจเย็นๆ รออีกแปปเดียว</p>
+            <p class="mt-2 font-bold text-slate-500 italic text-xs tracking-widest uppercase">กำลังโหลดข้อมูล...รอสักครู่นะ</p>
         </div>
     </div>
     
     <div id="toast" class="toast hide"></div>
 
     <header class="bg-schneider text-white p-3 shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
-            <div class="text-center lg:text-left">
-                <h1 class="text-base font-black uppercase tracking-tighter text-white text-white">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal text-white">Road to 70% OEE</span></h1>
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3 text-white">
+            <div class="text-center lg:text-left text-white">
+                <h1 class="text-base font-black uppercase tracking-tighter text-white">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal">Road to 70% OEE</span></h1>
                 <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">กำลังระบุช่วงเวลากะทำงาน...</p>
             </div>
             
-            <div class="flex flex-wrap items-center justify-center gap-2 text-white">
+            <div class="flex flex-wrap items-center justify-center gap-2">
                 <div class="flex bg-black/10 p-1 rounded-lg">
                     <button id="btn-current" onclick="setFilterMode('current')" class="px-2 py-1 rounded-md transition-all btn-active font-bold uppercase text-[9px]">Shift</button>
                     <button id="btn-prev1" onclick="setFilterMode('prev1')" class="px-2 py-1 rounded-md transition-all font-bold uppercase text-[9px]">P1</button>
@@ -86,26 +86,26 @@
                 <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">Total Scrap Quantity</p>
                 <h2 id="stat-total-qty" class="text-5xl font-black text-slate-800 tracking-tighter">0</h2>
             </div>
-            <div class="col-span-2 glass-card p-6 rounded-2xl bg-emerald-600 flex flex-col items-center justify-center shadow-md relative overflow-hidden text-center">
+            <div class="col-span-2 glass-card p-6 rounded-2xl bg-emerald-600 flex flex-col items-center justify-center shadow-md relative overflow-hidden text-center text-white">
                 <div class="absolute top-0 right-0 p-4 opacity-10">
                     <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3m4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
                 </div>
-                <h2 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 rally-text italic text-white text-white">Road to 70% OEE</h2>
-                <p class="text-emerald-100 text-xl md:text-3xl font-black italic uppercase text-white text-white">Domae Sub Welding Team!</p>
+                <h2 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 rally-text italic">Road to 70% OEE</h2>
+                <p class="text-emerald-100 text-xl md:text-3xl font-black italic uppercase text-white">Domae Sub Welding Team!</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1 text-slate-400 font-black uppercase italic tracking-tighter">
-                    <span>📋 Recent Logs</span>
+                    <span>📋 Recent Logs (Color-Coded)</span>
                     <button onclick="exportToExcel('logs')" class="text-emerald-600 hover:underline text-[9px]">Export Logs CSV</button>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[850px]">
                     <div class="overflow-y-auto h-full text-[10px]">
                         <table class="w-full text-left">
                             <thead class="bg-slate-50 sticky top-0 z-10 border-b uppercase">
-                                <tr><th class="p-2">Time</th><th class="p-2">Model/Defect</th><th class="p-2 text-right">Qty</th><th class="p-2"></th></tr>
+                                <tr><th class="p-2 text-white">Time</th><th class="p-2 text-white">Model/Defect</th><th class="p-2 text-right text-white">Qty</th><th class="p-2"></th></tr>
                             </thead>
                             <tbody id="logs-tbody" class="divide-y divide-slate-100"></tbody>
                         </table>
@@ -123,7 +123,7 @@
 
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic text-schneider text-white">BOM Explosion Analysis</h3>
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic text-schneider">BOM Explosion Analysis</h3>
                         <button onclick="exportToExcel('bom')" class="bg-schneider text-white px-4 py-1.5 rounded-lg font-black shadow hover:bg-emerald-600 transition-all text-[9px] flex items-center gap-1 uppercase tracking-tighter text-white">📥 Export BOM Explode</button>
                     </div>
                     <div class="overflow-y-auto max-h-[850px]">
@@ -135,8 +135,8 @@
     </main>
 
     <div id="recordModal" class="modal hide">
-        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl space-y-6 m-4 border-t-8 border-schneider">
-            <div class="flex justify-between items-center border-b pb-4 text-schneider">
+        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl space-y-6 m-4 border-t-8 border-schneider text-white">
+            <div class="flex justify-between items-center border-b pb-4 text-schneider text-white">
                 <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter italic">บันทึกงานเสีย</h2>
                 <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-3xl font-light">&times;</button>
             </div>
@@ -159,47 +159,14 @@
         </div>
     </div>
 
-    <div id="manualModal" class="modal hide">
-        <div class="bg-white w-full max-w-xl max-h-[90vh] p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col m-4">
-            <div class="bg-schneider p-5 flex justify-between items-center text-white">
-                <h2 class="text-lg font-black uppercase tracking-widest italic text-white text-white">📖 คู่มือบันทึกงานเสีย</h2>
-                <button onclick="closeManual()" class="hover:bg-black/10 w-8 h-8 rounded-full flex items-center justify-center text-2xl font-bold transition-all text-white text-white">&times;</button>
-            </div>
-            <div class="p-8 overflow-y-auto space-y-10 text-slate-600">
-                <div class="flex gap-6 items-start">
-                    <div class="step-number">1</div>
-                    <div class="space-y-2 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider text-white">เปิดหน้าบันทึก</h4>
-                        <p class="text-sm">กดปุ่มสีขาว <span class="font-bold text-emerald-600 underline">"➕ RECORD"</span></p>
-                    </div>
-                </div>
-                <div class="flex gap-6 items-start">
-                    <div class="step-number">2</div>
-                    <div class="space-y-2 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider text-white">เลือก & ใส่ยอด</h4>
-                        <p class="text-sm">ระบบจะจำรุ่นล่าสุดไว้ให้ เลือกอาการเสีย แล้วใส่จำนวน (คลุมดำเลข 1 ให้อัตโนมัติ)</p>
-                    </div>
-                </div>
-                <div class="flex gap-6 items-start">
-                    <div class="step-number">3</div>
-                    <div class="space-y-2 flex-1">
-                        <h4 class="font-black text-slate-800 text-base italic uppercase text-schneider text-white">การคัดกรอง</h4>
-                        <p class="text-sm">ใช้ปุ่ม **P1-P3** ย้อนหลังกะ หรือเลือก **วันที่** จากปฏิทิน</p>
-                    </div>
-                </div>
-                <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg text-center font-bold italic text-sm text-white">🏁 เป้าหมาย OEE 70% | Domae Sub Welding Team!</div>
-            </div>
-            <div class="p-6 bg-slate-50 border-t flex justify-center">
-                <button onclick="closeManual()" class="bg-slate-800 text-white px-12 py-3 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg active:scale-95 text-white">เข้าใจแล้ว!</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUZpmS-_QxEeddGtp2Kxbkee7qM9MKH2V7KYFDOl8VGVF6CMaCxBA5gP0GEk0D_cgD/exec';
         
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
         let isFirstLoad = true;
+
+        // ฟังก์ชัน Clean แบบแม่นยำสูง (Exact Case)
+        const cleanExact = (s) => s ? s.toString().trim() : "";
 
         function wrapText(text, maxLength = 30) {
             if (!text) return [""];
@@ -252,8 +219,8 @@
         function updateDropdowns() {
             const mSelect = document.getElementById('in-model'), dSelect = document.getElementById('in-defect');
             if (rawData.master && rawData.master.length > 1) {
-                const models = rawData.master.slice(1).map(r => r[0]).filter(v => v && v !== 'Common' && v !== 'Model');
-                mSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+                const models = rawData.master.slice(1).map(r => r[0]).filter(v => v && v.toLowerCase() !== 'common' && v.toLowerCase() !== 'model');
+                mSelect.innerHTML = Array.from(new Set(models)).map(m => `<option value="${m}">${m}</option>`).join('');
             }
             if (rawData.matrix && rawData.matrix.length > 1) {
                 const defects = rawData.matrix.slice(1).map(r => r[0]).filter(v => v && v !== "Defect");
@@ -304,7 +271,7 @@
                     start.setHours(13, 0, 0, 0);
                     end = new Date(start.getTime() + 12 * 3600000);
                 }
-                label = `📅 Date Selection | ${start.toLocaleDateString('th-TH')}`;
+                label = `📅 Selection | ${start.toLocaleDateString('th-TH')}`;
             } else if (currentMode === 'month') { 
                 start = new Date(sy, sm, 1); end = new Date(sy, sm + 1, 1); 
                 label = `📅 Month: ${start.toLocaleString('en-US', { month: 'short' })} ${sy}`; 
@@ -322,26 +289,25 @@
             } else { filteredLogs = []; }
         }
 
-        // ปรับปรุงฟังก์ชันตรวจสอบความถูกต้องของ Part (ตัดช่องว่างและวงเล็บออกเพื่อความแม่นยำ)
+        // --- NEW: ADVANCED MODEL COLOR MAPPING ---
+        function getModelColorMeta(m) {
+            const name = m.toLowerCase();
+            if (name.includes('domae 16a')) return { bg: 'bg-emerald-50/40', border: 'border-emerald-500', badge: 'bg-emerald-100 text-emerald-700' };
+            if (name.includes('easy9 16a')) return { bg: 'bg-blue-50/40', border: 'border-blue-500', badge: 'bg-blue-100 text-blue-700' };
+            if (name.includes('ik60 16a')) return { bg: 'bg-amber-50/40', border: 'border-amber-400', badge: 'bg-amber-100 text-amber-700' };
+            if (name.includes('ik60 20a')) return { bg: 'bg-orange-50/40', border: 'border-orange-600', badge: 'bg-orange-100 text-orange-700' };
+            if (name.includes('domae easy9 20a')) return { bg: 'bg-purple-50/40', border: 'border-purple-500', badge: 'bg-purple-100 text-purple-700' };
+            return { bg: 'bg-slate-50/40', border: 'border-slate-300', badge: 'bg-slate-100 text-slate-600' };
+        }
+
         function isPartValidForModel(pName, mName, master) {
             if (!master || master.length <= 1) return true;
-            
-            // Clean names: ลบช่องว่าง, ลบวงเล็บ, ทำให้เป็นตัวเล็ก
-            const clean = (s) => s.toString().split('(')[0].trim().toLowerCase();
-            const cP = clean(pName);
-            const cM = clean(mName);
-            
-            // หา Part นี้ใน BOM_Master
-            const rows = master.slice(1).filter(r => r[1] && clean(r[1]) === cP);
-            
-            // ถ้าไม่เจอใน Master เลย ให้ถือว่าเป็น Common (กันยอดหาย)
-            if (rows.length === 0) return true;
-            
-            // ถ้าเจอ: ต้องเป็นของรุ่นนี้ (Unique) หรือเป็นพาร์ทกลาง (Common)
-            return rows.some(r => {
-                const rowModel = clean(r[0]);
-                return rowModel === cM || rowModel === 'common';
-            });
+            const cP = cleanExact(pName);
+            const cM = cleanExact(mName);
+            const row = master.slice(1).find(r => cleanExact(r[1]) === cP);
+            if (!row) return true;
+            const rowModel = cleanExact(row[0]);
+            return (rowModel === cM || rowModel.toLowerCase() === 'common');
         }
 
         function calculateBOM() {
@@ -350,10 +316,12 @@
                 const mH = rawData.matrix[0], mR = rawData.matrix.slice(1);
                 mH.slice(1).forEach(p => bMap[p.trim()] = 0);
                 filteredLogs.forEach(l => {
-                    const row = mR.find(r => r[0] === l[5]);
-                    if (row) {
+                    const matrixRow = mR.find(r => cleanExact(r[0]) === cleanExact(l[5]));
+                    if (matrixRow) {
                         mH.slice(1).forEach((p, i) => {
-                            if (parseInt(row[i+1]) > 0 && isPartValidForModel(p.trim(), l[4], rawData.master)) bMap[p.trim()] += parseInt(l[6]);
+                            if (parseInt(matrixRow[i+1]) > 0 && isPartValidForModel(p.trim(), l[4], rawData.master)) {
+                                bMap[p.trim()] += parseInt(l[6]);
+                            }
                         });
                     }
                 });
@@ -361,25 +329,22 @@
             return bMap;
         }
 
-        // ฟังก์ชันช่วยเช็ค Type ของพาร์ทเพื่อระบายสี Chart
-        function getPartType(pName, master) {
-            if (!master || master.length <= 1) return 'Common';
-            const clean = (s) => s.toString().split('(')[0].trim().toLowerCase();
-            const cP = clean(pName);
-            const row = master.slice(1).find(r => r[1] && clean(r[1]) === cP);
-            return row ? row[2] : 'Common'; // คืนค่า Type (Unique/Common)
-        }
-
         function renderAll() {
             const total = filteredLogs.reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
             document.getElementById('stat-total-qty').innerText = total.toLocaleString();
-            document.getElementById('logs-tbody').innerHTML = [...filteredLogs].reverse().map(l => `
-                <tr class="hover:bg-slate-50 border-b border-slate-100">
+            document.getElementById('logs-tbody').innerHTML = [...filteredLogs].reverse().map(l => {
+                const style = getModelColorMeta(l[4]);
+                return `
+                <tr class="hover:opacity-80 border-b border-slate-100 border-l-4 ${style.border} ${style.bg} transition-all">
                     <td class="p-2 font-mono text-slate-400 font-bold">${parseSheetDate(l[1]).toLocaleString('th-TH', {hour:'2-digit', minute:'2-digit'})}</td>
-                    <td class="p-2 font-bold text-slate-700"><div>${l[4]}</div><div class="text-[9px] text-slate-500 font-normal italic">${l[5]}</div></td>
+                    <td class="p-2 font-bold text-slate-700">
+                        <div><span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-sm ${style.badge}">${l[4]}</span></div>
+                        <div class="text-[9px] text-slate-500 font-normal italic mt-1">${l[5]}</div>
+                    </td>
                     <td class="p-2 text-right font-black text-rose-500 text-sm">${(parseInt(l[6]) || 0).toLocaleString()}</td>
                     <td class="p-2 text-right"><button onclick="editEntry('${l[0]}')" class="text-slate-300 hover:text-sky-500 p-1">✏️</button></td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
             
             const dMap = {}; filteredLogs.forEach(l => dMap[l[5]] = (dMap[l[5]] || 0) + (parseInt(l[6]) || 0));
             const ds = Object.entries(dMap).sort((a,b) => b[1]-a[1]);
@@ -396,8 +361,10 @@
                     labels: bl.map(l => wrapText(l)), 
                     datasets: [{ 
                         data: bl.map(l => bMap[l]), 
-                        // เปลี่ยนการระบายสีตาม Type จริงใน BOM_Master
-                        backgroundColor: bl.map(l => getPartType(l, rawData.master) === 'Unique' ? '#3dcd58' : '#94a3b8'), 
+                        backgroundColor: bl.map(l => {
+                            const row = rawData.master.slice(1).find(r => cleanExact(r[1]) === cleanExact(l));
+                            return (row && row[2] === 'Unique') ? '#3dcd58' : '#94a3b8';
+                        }), 
                         borderRadius: 4 
                     }] 
                 }, 
