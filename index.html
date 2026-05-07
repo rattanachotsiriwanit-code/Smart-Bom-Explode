@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domae Scrap Tracking - Strict Master Version</title>
+    <title>Domae Scrap Tracking - Absolute Strict Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -19,11 +19,9 @@
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
         .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; z-index: 3000; transition: all 0.3s; }
         select, input[type="date"] { background-image: none; appearance: none; -webkit-appearance: none; }
-        .step-number { background-color: #3dcd58; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0; }
         .rally-text { animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         
-        /* สไตล์พิเศษสำหรับช่องเลือก Model ให้ดูเหมือน Badge */
         #in-model {
             text-align: center;
             font-size: 14px;
@@ -33,6 +31,7 @@
         #in-model option {
             background-color: white !important;
             color: #334155 !important;
+            font-weight: 400;
         }
     </style>
 </head>
@@ -41,7 +40,7 @@
     <div id="loading" class="loading-overlay">
         <div class="text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3dcd58] mx-auto"></div>
-            <p class="mt-2 font-bold text-slate-500 italic text-xs tracking-widest uppercase text-slate-500">กำลังโหลดข้อมูล... รอสักครู่นะครับ</p>
+            <p class="mt-2 font-bold text-slate-500 italic text-xs tracking-widest uppercase">กำลังโหลดข้อมูล... รอสักครู่นะครับ...</p>
         </div>
     </div>
     
@@ -49,7 +48,7 @@
 
     <header class="bg-schneider text-white p-3 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
-            <div class="text-center lg:text-left">
+            <div class="text-center lg:text-left text-white">
                 <h1 class="text-base font-black uppercase tracking-tighter text-white">Domae Scrap Tracking <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded-full ml-2 uppercase tracking-normal">Road to 70% OEE</span></h1>
                 <p id="shift-label" class="text-white/90 text-[9px] italic font-medium tracking-wide">กำลังระบุช่วงเวลากะทำงาน...</p>
             </div>
@@ -103,14 +102,14 @@
                     <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3m4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
                 </div>
                 <h2 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 rally-text italic">Road to 70% OEE</h2>
-                <p class="text-emerald-100 text-xl md:text-3xl font-black italic uppercase text-white">Domae Sub Welding Team!</p>
+                <p class="text-emerald-100 text-xl md:text-3xl font-black italic uppercase">Domae Sub Welding Team!</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1 text-slate-400 font-black uppercase italic tracking-tighter">
-                    <span>📋 Recent Logs (Color-Coded)</span>
+                    <span>📋 Recent Logs (Strict Mode)</span>
                     <button onclick="exportToExcel('logs')" class="text-emerald-600 hover:underline text-[9px]">Export Logs CSV</button>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[850px]">
@@ -149,14 +148,13 @@
     <div id="recordModal" class="modal hide">
         <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl space-y-6 m-4 border-t-8 border-schneider">
             <div class="flex justify-between items-center border-b pb-4 text-schneider">
-                <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter italic">บันทึกงานเสีย</h2>
+                <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter italic text-schneider">บันทึกงานเสีย</h2>
                 <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-3xl font-light">&times;</button>
             </div>
             <form id="scrapForm" class="space-y-4 text-[13px]">
                 <input type="hidden" id="in-id">
                 <div>
                     <label class="block font-bold text-slate-500 mb-1 italic">1. รุ่น (Model)</label>
-                    <!-- เมื่อเปลี่ยนรุ่น จะเรียกฟังก์ชัน updateModelSelectStyle -->
                     <select id="in-model" onchange="updateModelSelectStyle()" class="w-full p-4 border-2 border-slate-100 rounded-2xl outline-none font-extrabold transition-all duration-300 uppercase"></select>
                 </div>
                 <div>
@@ -178,7 +176,8 @@
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
         let isFirstLoad = true;
 
-        const cleanExact = (s) => s ? s.toString().trim() : "";
+        // ฟังก์ชัน "สับสวิตช์ความโหด": ตัดเว้นวรรคทั้งหมด และทำเป็นตัวพิมพ์เล็ก เพื่อเช็คเป๊ะๆ (ห้ามตัดวงเล็บเด็ดขาด!)
+        const strictClean = (s) => s ? s.toString().replace(/\s+/g, '').toLowerCase() : "";
 
         function wrapText(text, maxLength = 30) {
             if (!text) return [""];
@@ -231,7 +230,8 @@
         function updateDropdowns() {
             const mSelect = document.getElementById('in-model'), dSelect = document.getElementById('in-defect');
             if (rawData.master && rawData.master.length > 1) {
-                const models = rawData.master.slice(1).map(r => r[0]).filter(v => v && v.toLowerCase() !== 'common' && v.toLowerCase() !== 'model');
+                // กรองเอาเฉพาะชื่อรุ่นที่ไม่ซ้ำ และไม่ใช่คำว่า Common
+                const models = rawData.master.slice(1).map(r => r[0]).filter(v => v && strictClean(v) !== 'common' && strictClean(v) !== 'model');
                 mSelect.innerHTML = Array.from(new Set(models)).map(m => `<option value="${m}">${m}</option>`).join('');
             }
             if (rawData.matrix && rawData.matrix.length > 1) {
@@ -302,28 +302,24 @@
             } else { filteredLogs = []; }
         }
 
-        // --- MODEL COLOR META DATA ---
         function getModelColorMeta(m) {
             const name = m.toLowerCase();
-            if (name.includes('domae 16a')) return { bg: '#10b981', text: '#ffffff', badge: 'bg-emerald-100 text-emerald-700' }; // Emerald 500
-            if (name.includes('easy9 16a')) return { bg: '#3b82f6', text: '#ffffff', badge: 'bg-blue-100 text-blue-700' }; // Blue 500
-            if (name.includes('ik60 16a')) return { bg: '#f59e0b', text: '#ffffff', badge: 'bg-amber-100 text-amber-700' }; // Amber 500
-            if (name.includes('ik60 20a')) return { bg: '#ea580c', text: '#ffffff', badge: 'bg-orange-100 text-orange-700' }; // Orange 600
-            if (name.includes('domae easy9 20a')) return { bg: '#8b5cf6', text: '#ffffff', badge: 'bg-purple-100 text-purple-700' }; // Violet 500
+            if (name.includes('domae 16a')) return { bg: '#10b981', text: '#ffffff', badge: 'bg-emerald-100 text-emerald-700' };
+            if (name.includes('easy9 16a')) return { bg: '#3b82f6', text: '#ffffff', badge: 'bg-blue-100 text-blue-700' };
+            if (name.includes('ik60 16a')) return { bg: '#f59e0b', text: '#ffffff', badge: 'bg-amber-100 text-amber-700' };
+            if (name.includes('ik60 20a')) return { bg: '#ea580c', text: '#ffffff', badge: 'bg-orange-100 text-orange-700' };
+            if (name.includes('domae easy9 20a')) return { bg: '#8b5cf6', text: '#ffffff', badge: 'bg-purple-100 text-purple-700' };
             return { bg: '#f1f5f9', text: '#475569', badge: 'bg-slate-100 text-slate-600' };
         }
 
-        // ฟังก์ชันหัวใจ: อัปเดตสีของช่อง Select ในหน้า Record ให้ล้อไปกับ Log
         function updateModelSelectStyle() {
             const select = document.getElementById('in-model');
             const modelName = select.value;
             const meta = getModelColorMeta(modelName);
-            
             if (modelName) {
                 select.style.backgroundColor = meta.bg;
                 select.style.borderColor = meta.bg;
                 select.style.color = meta.text;
-                // เพิ่มความหนาและขอบมนให้ดูเหมือนก้อน Badge
                 select.style.fontWeight = "800";
             } else {
                 select.style.backgroundColor = '#f8fafc';
@@ -333,27 +329,44 @@
             }
         }
 
+        // --- CORE LOGIC: 100% ABSOLUTE STRICT IDENTITY ---
         function isPartValidForModel(pName, mName, master) {
-            if (!master || master.length <= 1) return true;
-            const cP = cleanExact(pName);
-            const cM = cleanExact(mName);
-            const row = master.slice(1).find(r => cleanExact(r[1]) === cP);
-            if (!row) return true;
-            const rowModel = cleanExact(row[0]);
-            return (rowModel === cM || rowModel.toLowerCase() === 'common');
+            if (!master || master.length <= 1) return false; // ไม่มีข้อมูลให้เช็ค บล็อกทิ้งลูกเดียว
+            
+            const targetM = strictClean(mName);
+            const targetP = strictClean(pName); // ย้ำ! ตัวแปรนี้จะลบแค่ช่องว่าง แต่วงเล็บ (CN) ยังอยู่ครบถ้วน
+
+            // หาพาร์ทนี้เป๊ะๆ ในตาราง BOM_Master
+            const matchedRows = master.slice(1).filter(r => strictClean(r[1]) === targetP);
+
+            // บล็อก 100%: ถ้าพาร์ทนี้ไม่มีอยู่ใน BOM_Master เลย ระบบจะไม่มั่วนิ่มให้เป็น Common เด็ดขาด (เตะทิ้งทันที)
+            if (matchedRows.length === 0) return false;
+
+            // ตรวจสอบว่าพาร์ทที่เจอ เป็นของรุ่นที่บันทึกมา (targetM) หรือถูกระบุว่าเป็น 'common' หรือไม่
+            return matchedRows.some(r => {
+                const masterModel = strictClean(r[0]);
+                return masterModel === targetM || masterModel === 'common';
+            });
         }
 
         function calculateBOM() {
             const bMap = {}; 
             if (rawData.matrix && rawData.matrix.length > 0) {
                 const mH = rawData.matrix[0], mR = rawData.matrix.slice(1);
+                
+                // เริ่มต้นให้ทุกพาร์ทใน Matrix เป็น 0
                 mH.slice(1).forEach(p => bMap[p.trim()] = 0);
+
                 filteredLogs.forEach(l => {
-                    const matrixRow = mR.find(r => cleanExact(r[0]) === cleanExact(l[5]));
+                    const logModel = l[4];
+                    const matrixRow = mR.find(r => strictClean(r[0]) === strictClean(l[5]));
+                    
                     if (matrixRow) {
                         mH.slice(1).forEach((p, i) => {
-                            if (parseInt(matrixRow[i+1]) > 0 && isPartValidForModel(p.trim(), l[4], rawData.master)) {
-                                bMap[p.trim()] += parseInt(l[6]);
+                            const pName = p.trim();
+                            // ตรวจสอบขั้นสุด: ต้องมีค่าใช้งาน > 0 และ ต้องได้รับอนุญาตจาก BOM_Master จริงๆ เท่านั้น
+                            if (parseInt(matrixRow[i+1]) > 0 && isPartValidForModel(pName, logModel, rawData.master)) {
+                                bMap[pName] += (parseInt(l[6]) || 0);
                             }
                         });
                     }
@@ -362,13 +375,20 @@
             return bMap;
         }
 
+        // ตรวจสอบประเภทพาร์ทเพื่อระบายสีกราฟ 
+        function getPartType(pName, master) {
+            if (!master || master.length <= 1) return 'Common';
+            const targetP = strictClean(pName);
+            const row = master.slice(1).find(r => strictClean(r[1]) === targetP);
+            return (row && strictClean(row[2]) === 'unique') ? 'Unique' : 'Common';
+        }
+
         function renderAll() {
             const total = filteredLogs.reduce((a, c) => a + (parseInt(c[6]) || 0), 0);
             document.getElementById('stat-total-qty').innerText = total.toLocaleString();
             document.getElementById('logs-tbody').innerHTML = [...filteredLogs].reverse().map(l => {
                 const meta = getModelColorMeta(l[4]);
-                const softBg = meta.bg + '15'; // จางลงสำหรับพื้นหลังตาราง
-                
+                const softBg = meta.bg + '15';
                 return `
                 <tr class="hover:opacity-80 border-b border-slate-100 border-l-4 transition-all" style="border-left-color: ${meta.bg}; background-color: ${softBg};">
                     <td class="p-2 font-mono text-slate-400 font-bold">${parseSheetDate(l[1]).toLocaleString('th-TH', {hour:'2-digit', minute:'2-digit'})}</td>
@@ -387,7 +407,10 @@
             if (charts.defect) charts.defect.destroy();
             charts.defect = new Chart(ctxD, { type: 'bar', data: { labels: ds.map(d => wrapText(d[0])), datasets: [{ data: ds.map(d => d[1]), backgroundColor: '#f43f5e', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', font: { weight: 'bold' }, formatter: (v) => v.toLocaleString() } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: false } } } } });
 
-            const bMap = calculateBOM(); const bl = Object.keys(bMap).filter(k => bMap[k] > 0);
+            const bMap = calculateBOM(); 
+            // โชว์เฉพาะพาร์ทที่ถูกกรองและมียอดขยะจริงๆ เท่านั้น (ไม่หลุดพาร์ท 0 ชิ้นหรือพาร์ทมั่วมาแสดง)
+            const bl = Object.keys(bMap).filter(k => bMap[k] > 0);
+            
             const ctxB = document.getElementById('bomChart'); ctxB.parentNode.style.height = Math.max(400, bl.length * 50) + "px";
             if (charts.bom) charts.bom.destroy();
             charts.bom = new Chart(ctxB, { 
@@ -396,10 +419,8 @@
                     labels: bl.map(l => wrapText(l)), 
                     datasets: [{ 
                         data: bl.map(l => bMap[l]), 
-                        backgroundColor: bl.map(l => {
-                            const row = rawData.master.slice(1).find(r => cleanExact(r[1]) === cleanExact(l));
-                            return (row && row[2] === 'Unique') ? '#3dcd58' : '#94a3b8';
-                        }), 
+                        // ระบายสีตามประเภทพาร์ท
+                        backgroundColor: bl.map(l => getPartType(l, rawData.master) === 'Unique' ? '#3dcd58' : '#94a3b8'), 
                         borderRadius: 4 
                     }] 
                 }, 
@@ -414,11 +435,9 @@
             if(lM) document.getElementById('in-model').value = lM;
             if(lD) document.getElementById('in-defect').value = lD;
             document.getElementById('in-qty').value = "";
-            updateModelSelectStyle(); // บังคับอัปเดตสีทันทีที่เปิด
+            updateModelSelectStyle();
         }
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
-        function openManual() { document.getElementById('manualModal').classList.remove('hide'); }
-        function closeManual() { document.getElementById('manualModal').classList.add('hide'); }
         function editEntry(id) { const e = rawData.logs.find(l => l[0] === id); if (e) { openModal(); document.getElementById('in-id').value = e[0]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6]; updateModelSelectStyle(); } }
         
         document.getElementById('scrapForm').addEventListener('submit', async (e) => { 
