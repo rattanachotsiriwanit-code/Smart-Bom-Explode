@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domae Scrap Tracking - Absolute Strict Version</title>
+    <title>Domae Scrap Tracking - Strict Master Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -106,10 +106,31 @@
             </div>
         </div>
 
+        <!-- NEW: ตารางตรวจสอบพาร์ทยูนีคแบบด่วน (Unique Parts Inspection Grid Row) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden">
+            <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-3 flex items-center gap-1">
+                <span>🔍 ตารางตรวจสอบพาร์ทยูนีคคุมยอดประจำวัน (Unique Parts Verification)</span>
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-center border-collapse border border-slate-200 rounded-lg overflow-hidden">
+                    <thead>
+                        <tr id="unique-parts-header" class="bg-slate-50 text-[10px] uppercase font-bold text-slate-600">
+                            <!-- จะถูกใส่ด้วย JS Dynamic -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="unique-parts-values" class="text-slate-800 font-extrabold text-lg">
+                            <!-- จะถูกใส่ด้วย JS Dynamic -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="lg:col-span-1 space-y-2">
                 <div class="flex justify-between items-center px-1 text-slate-400 font-black uppercase italic tracking-tighter">
-                    <span>📋 Recent Logs (Strict Mode)</span>
+                    <span>📋 Recent Logs (Strict Check)</span>
                     <button onclick="exportToExcel('logs')" class="text-emerald-600 hover:underline text-[9px]">Export Logs CSV</button>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[850px]">
@@ -176,8 +197,15 @@
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
         let isFirstLoad = true;
 
-        // ฟังก์ชัน "สับสวิตช์ความโหด": ตัดเว้นวรรคทั้งหมด และทำเป็นตัวพิมพ์เล็ก เพื่อเช็คเป๊ะๆ (ห้ามตัดวงเล็บเด็ดขาด!)
-        const strictClean = (s) => s ? s.toString().replace(/\s+/g, '').toLowerCase() : "";
+        const strictCleanModel = (s) => s ? s.toString().replace(/\s+/g, '').toLowerCase() : "";
+        const strictCleanPart = (s) => {
+            if (!s) return "";
+            return s.toString()
+                .replace(/\s+/g, '')
+                .replace(/（/g, '(')
+                .replace(/）/g, ')')
+                .toLowerCase();
+        };
 
         function wrapText(text, maxLength = 30) {
             if (!text) return [""];
@@ -230,8 +258,7 @@
         function updateDropdowns() {
             const mSelect = document.getElementById('in-model'), dSelect = document.getElementById('in-defect');
             if (rawData.master && rawData.master.length > 1) {
-                // กรองเอาเฉพาะชื่อรุ่นที่ไม่ซ้ำ และไม่ใช่คำว่า Common
-                const models = rawData.master.slice(1).map(r => r[0]).filter(v => v && strictClean(v) !== 'common' && strictClean(v) !== 'model');
+                const models = rawData.master.slice(1).map(r => r[0]).filter(v => v && strictCleanModel(v) !== 'common' && strictCleanModel(v) !== 'model');
                 mSelect.innerHTML = Array.from(new Set(models)).map(m => `<option value="${m}">${m}</option>`).join('');
             }
             if (rawData.matrix && rawData.matrix.length > 1) {
@@ -329,22 +356,40 @@
             }
         }
 
-        // --- CORE LOGIC: 100% ABSOLUTE STRICT IDENTITY ---
+        function getMasterColumnIndices() {
+            const defaultIndexes = { model: 0, partNo: 1, type: 2 };
+            if (!rawData.master || rawData.master.length === 0) return defaultIndexes;
+            const headers = rawData.master[0].map(h => h.toString().trim().toLowerCase());
+            const modelIdx = headers.findIndex(h => h.includes('model'));
+            const partIdx = headers.findIndex(h => h.includes('part') || h.includes('pn') || h.includes('p_n'));
+            const typeIdx = headers.findIndex(h => h.includes('type'));
+            return {
+                model: modelIdx !== -1 ? modelIdx : defaultIndexes.model,
+                partNo: partIdx !== -1 ? partIdx : defaultIndexes.partNo,
+                type: typeIdx !== -1 ? typeIdx : defaultIndexes.type
+            };
+        }
+
+        function getPartType(pName, master) {
+            if (!master || master.length <= 1) return 'Common';
+            const targetP = strictCleanPart(pName);
+            const cols = getMasterColumnIndices();
+
+            const row = master.slice(1).find(r => strictCleanPart(r[cols.partNo]) === targetP);
+            return (row && strictCleanModel(row[cols.type]) === 'unique') ? 'Unique' : 'Common';
+        }
+
         function isPartValidForModel(pName, mName, master) {
-            if (!master || master.length <= 1) return false; // ไม่มีข้อมูลให้เช็ค บล็อกทิ้งลูกเดียว
-            
-            const targetM = strictClean(mName);
-            const targetP = strictClean(pName); // ย้ำ! ตัวแปรนี้จะลบแค่ช่องว่าง แต่วงเล็บ (CN) ยังอยู่ครบถ้วน
+            if (!master || master.length <= 1) return false;
+            const targetM = strictCleanModel(mName);
+            const targetP = strictCleanPart(pName);
+            const cols = getMasterColumnIndices();
 
-            // หาพาร์ทนี้เป๊ะๆ ในตาราง BOM_Master
-            const matchedRows = master.slice(1).filter(r => strictClean(r[1]) === targetP);
-
-            // บล็อก 100%: ถ้าพาร์ทนี้ไม่มีอยู่ใน BOM_Master เลย ระบบจะไม่มั่วนิ่มให้เป็น Common เด็ดขาด (เตะทิ้งทันที)
+            const matchedRows = master.slice(1).filter(r => strictCleanPart(r[cols.partNo]) === targetP);
             if (matchedRows.length === 0) return false;
 
-            // ตรวจสอบว่าพาร์ทที่เจอ เป็นของรุ่นที่บันทึกมา (targetM) หรือถูกระบุว่าเป็น 'common' หรือไม่
             return matchedRows.some(r => {
-                const masterModel = strictClean(r[0]);
+                const masterModel = strictCleanModel(r[cols.model]);
                 return masterModel === targetM || masterModel === 'common';
             });
         }
@@ -353,34 +398,51 @@
             const bMap = {}; 
             if (rawData.matrix && rawData.matrix.length > 0) {
                 const mH = rawData.matrix[0], mR = rawData.matrix.slice(1);
+                const cols = getMasterColumnIndices();
                 
-                // เริ่มต้นให้ทุกพาร์ทใน Matrix เป็น 0
                 mH.slice(1).forEach(p => bMap[p.trim()] = 0);
+
+                rawData.master.slice(1).forEach(row => {
+                    const partName = row[cols.partNo];
+                    if (partName && row[cols.type] && strictCleanModel(row[cols.type]) === 'unique') {
+                        bMap[partName.trim()] = 0;
+                    }
+                });
 
                 filteredLogs.forEach(l => {
                     const logModel = l[4];
-                    const matrixRow = mR.find(r => strictClean(r[0]) === strictClean(l[5]));
+                    const logDefect = l[5];
+                    const logQty = parseInt(l[6]) || 0;
+
+                    const modelRow = rawData.master.slice(1).find(r => strictCleanModel(r[cols.model]) === strictCleanModel(logModel) && strictCleanModel(r[cols.type]) === 'unique');
+                    const modelUniquePart = modelRow ? modelRow[cols.partNo].toString().trim() : null;
+
+                    const matrixRow = mR.find(r => strictCleanModel(r[0]) === strictCleanModel(logDefect));
                     
                     if (matrixRow) {
+                        let hasUniqueScrap = false;
+
                         mH.slice(1).forEach((p, i) => {
                             const pName = p.trim();
-                            // ตรวจสอบขั้นสุด: ต้องมีค่าใช้งาน > 0 และ ต้องได้รับอนุญาตจาก BOM_Master จริงๆ เท่านั้น
-                            if (parseInt(matrixRow[i+1]) > 0 && isPartValidForModel(pName, logModel, rawData.master)) {
-                                bMap[pName] += (parseInt(l[6]) || 0);
+                            const isScrap = parseInt(matrixRow[i+1]) > 0;
+
+                            if (isScrap) {
+                                const partType = getPartType(pName, rawData.master);
+                                if (partType === 'Unique') {
+                                    hasUniqueScrap = true;
+                                } else {
+                                    bMap[pName] += logQty;
+                                }
                             }
                         });
+
+                        if (hasUniqueScrap && modelUniquePart) {
+                            bMap[modelUniquePart] += logQty;
+                        }
                     }
                 });
             }
             return bMap;
-        }
-
-        // ตรวจสอบประเภทพาร์ทเพื่อระบายสีกราฟ 
-        function getPartType(pName, master) {
-            if (!master || master.length <= 1) return 'Common';
-            const targetP = strictClean(pName);
-            const row = master.slice(1).find(r => strictClean(r[1]) === targetP);
-            return (row && strictClean(row[2]) === 'unique') ? 'Unique' : 'Common';
         }
 
         function renderAll() {
@@ -408,8 +470,59 @@
             charts.defect = new Chart(ctxD, { type: 'bar', data: { labels: ds.map(d => wrapText(d[0])), datasets: [{ data: ds.map(d => d[1]), backgroundColor: '#f43f5e', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { align: 'end', anchor: 'end', font: { weight: 'bold' }, formatter: (v) => v.toLocaleString() } }, scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: false } } } } });
 
             const bMap = calculateBOM(); 
-            // โชว์เฉพาะพาร์ทที่ถูกกรองและมียอดขยะจริงๆ เท่านั้น (ไม่หลุดพาร์ท 0 ชิ้นหรือพาร์ทมั่วมาแสดง)
-            const bl = Object.keys(bMap).filter(k => bMap[k] > 0);
+            
+            // --- NEW: ดึงรายชื่อพาร์ทยูนีคทั้งหมดและจัดรูปแบบตารางตรวจสอบอย่างเป็นทางการ ---
+            const cols = getMasterColumnIndices();
+            if (rawData.master && rawData.master.length > 1) {
+                const uniquePartsList = rawData.master.slice(1)
+                    .filter(row => row[cols.type] && strictCleanModel(row[cols.type]) === 'unique')
+                    .map(row => {
+                        const model = row[cols.model].toString().trim();
+                        const partNo = row[cols.partNo].toString().trim();
+                        const qty = bMap[partNo] || 0;
+                        return { model, partNo, qty };
+                    });
+
+                // สร้างแถวที่ 1 (Model + Part)
+                const headerHtml = uniquePartsList.map(item => {
+                    const meta = getModelColorMeta(item.model);
+                    return `
+                        <th class="p-3 border border-slate-200 text-center min-w-[150px] transition-all" style="background-color: ${meta.bg}12; color: #1e293b; font-weight: 800; border-bottom: 2px solid ${meta.bg};">
+                            <div class="text-[9px] tracking-tight text-slate-500 mb-0.5 uppercase">Model</div>
+                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase shadow-sm ${meta.badge}">${item.model}</span>
+                            <div class="text-[8px] font-mono text-slate-400 mt-2 font-bold">${item.partNo}</div>
+                        </th>
+                    `;
+                }).join('');
+
+                // สร้างแถวที่ 2 (จำนวนชิ้นสะสมที่พบ)
+                const valueHtml = uniquePartsList.map(item => {
+                    const meta = getModelColorMeta(item.model);
+                    const isZero = item.qty === 0;
+                    const textStyle = isZero ? 'color: #cbd5e1; font-weight: 500;' : `color: ${meta.bg === '#f1f5f9' ? '#10b981' : meta.bg}; font-weight: 900; font-size: 16px;`;
+                    const cellBg = isZero ? 'transparent' : `${meta.bg}08`;
+                    
+                    return `
+                        <td class="p-3 border border-slate-200 text-center transition-all" style="background-color: ${cellBg}; ${textStyle}">
+                            ${item.qty.toLocaleString()} <span class="text-[9px] font-normal text-slate-400">Pcs</span>
+                        </td>
+                    `;
+                }).join('');
+
+                document.getElementById('unique-parts-header').innerHTML = headerHtml || '<th class="p-2 border border-slate-200 text-slate-400">ไม่พบรายชื่อพาร์ทยูนีคในมาสเตอร์</th>';
+                document.getElementById('unique-parts-values').innerHTML = valueHtml || '<td class="p-3 border border-slate-200 text-slate-400">-</td>';
+            }
+
+            // จัดเรียงรายการแท่งพาร์ททั้งหมดของกราฟ BOM
+            const bl = Object.keys(bMap)
+                .filter(k => bMap[k] > 0)
+                .sort((a, b) => {
+                    const typeA = getPartType(a, rawData.master);
+                    const typeB = getPartType(b, rawData.master);
+                    if (typeA === 'Unique' && typeB !== 'Unique') return -1;
+                    if (typeA !== 'Unique' && typeB === 'Unique') return 1;
+                    return bMap[b] - bMap[a];
+                });
             
             const ctxB = document.getElementById('bomChart'); ctxB.parentNode.style.height = Math.max(400, bl.length * 50) + "px";
             if (charts.bom) charts.bom.destroy();
@@ -419,7 +532,6 @@
                     labels: bl.map(l => wrapText(l)), 
                     datasets: [{ 
                         data: bl.map(l => bMap[l]), 
-                        // ระบายสีตามประเภทพาร์ท
                         backgroundColor: bl.map(l => getPartType(l, rawData.master) === 'Unique' ? '#3dcd58' : '#94a3b8'), 
                         borderRadius: 4 
                     }] 
