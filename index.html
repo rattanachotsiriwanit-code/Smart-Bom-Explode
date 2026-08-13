@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domae Scrap Tracking - Strict Master Version</title>
+    <title>Domae Scrap Tracking - Weight Calc Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <!-- NEW: ตารางตรวจสอบพาร์ทยูนีคแบบด่วน (Unique Parts Inspection Grid Row) -->
+        <!-- ตารางตรวจสอบพาร์ทยูนีคแบบด่วน (Unique Parts Inspection Grid Row) -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden">
             <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic mb-3 flex items-center gap-1">
                 <span>🔍 ตารางตรวจสอบพาร์ทยูนีคคุมยอดประจำวัน (Unique Parts Verification)</span>
@@ -115,12 +115,12 @@
                 <table class="w-full text-center border-collapse border border-slate-200 rounded-lg overflow-hidden">
                     <thead>
                         <tr id="unique-parts-header" class="bg-slate-50 text-[10px] uppercase font-bold text-slate-600">
-                            <!-- จะถูกใส่ด้วย JS Dynamic -->
+                            <!-- ใส่ด้วย JS Dynamic -->
                         </tr>
                     </thead>
                     <tbody>
                         <tr id="unique-parts-values" class="text-slate-800 font-extrabold text-lg">
-                            <!-- จะถูกใส่ด้วย JS Dynamic -->
+                            <!-- ใส่ด้วย JS Dynamic -->
                         </tr>
                     </tbody>
                 </table>
@@ -166,28 +166,129 @@
         </div>
     </main>
 
+    <!-- Modal บันทึกข้อมูลพร้อมระบบคำนวณจากน้ำหนัก -->
     <div id="recordModal" class="modal hide">
-        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl space-y-6 m-4 border-t-8 border-schneider">
-            <div class="flex justify-between items-center border-b pb-4 text-schneider">
+        <div class="bg-white w-full max-w-sm p-6 md:p-8 rounded-3xl shadow-2xl space-y-4 m-4 border-t-8 border-schneider max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3 text-schneider">
                 <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter italic text-schneider">บันทึกงานเสีย</h2>
                 <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 text-3xl font-light">&times;</button>
             </div>
+            
             <form id="scrapForm" class="space-y-4 text-[13px]">
                 <input type="hidden" id="in-id">
+                
                 <div>
                     <label class="block font-bold text-slate-500 mb-1 italic">1. รุ่น (Model)</label>
-                    <select id="in-model" onchange="updateModelSelectStyle()" class="w-full p-4 border-2 border-slate-100 rounded-2xl outline-none font-extrabold transition-all duration-300 uppercase"></select>
+                    <select id="in-model" onchange="updateModelSelectStyle()" class="w-full p-3 border-2 border-slate-100 rounded-2xl outline-none font-extrabold transition-all duration-300 uppercase"></select>
                 </div>
+                
                 <div>
                     <label class="block font-bold text-slate-500 mb-1 italic">2. อาการเสีย (Defect)</label>
-                    <select id="in-defect" class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none text-slate-700"></select>
+                    <select id="in-defect" onchange="handleDefectChange()" class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none text-slate-700"></select>
                 </div>
+
+                <!-- แท็บเลือกโหมดการกรอกจำนวน (Direct vs Weight Calculation) -->
                 <div>
-                    <label class="block font-bold text-slate-500 mb-1 italic">3. จำนวนชิ้น (Qty)</label>
+                    <label class="block font-bold text-slate-500 mb-1 italic">3. ระบุจำนวนงานเสีย</label>
+                    <div class="bg-slate-100 p-1 rounded-xl flex gap-1 mb-2">
+                        <button type="button" id="calc-mode-qty" onclick="setCalcMode('qty')" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all bg-emerald-600 text-white shadow-sm">🔢 กรอกจำนวนชิ้น</button>
+                        <button type="button" id="calc-mode-weight" onclick="setCalcMode('weight')" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all text-slate-500 hover:text-slate-800">⚖️ คำนวณจากน้ำหนัก</button>
+                    </div>
+                </div>
+
+                <!-- กล่องคำนวณงานเสียจากน้ำหนัก (Weight Calculator Sub-card) -->
+                <div id="weight-calc-box" class="bg-emerald-50/80 border border-emerald-200 p-3 rounded-2xl space-y-3 hide">
+                    <div class="flex justify-between items-center text-emerald-800 font-bold text-[11px]">
+                        <span>⚖️ ระบบคำนวณชิ้นจากน้ำหนัก</span>
+                        <span class="text-[9px] bg-emerald-200/60 text-emerald-800 px-2 py-0.5 rounded-full font-mono">Auto Weight</span>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 mb-1">เลือก Part Sub / น้ำหนักต่อชิ้น</label>
+                        <select id="in-part-sub" onchange="handlePartSubChange()" class="w-full p-2 border border-emerald-300 rounded-xl bg-white font-bold text-slate-700 text-xs focus:ring-2 focus:ring-emerald-400 outline-none">
+                            <option value="0.35" data-name="51207041A-CF">51207041A-CF (0.35 g / ชิ้น)</option>
+                            <option value="0.39" data-name="GHM10489A-CF">GHM10489A-CF (0.39 g / ชิ้น)</option>
+                            <option value="custom">-- กำหนดน้ำหนักเอง (Custom) --</option>
+                        </select>
+                    </div>
+
+                    <div id="custom-weight-per-piece-container" class="hide">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-1">น้ำหนักต่อ 1 ชิ้น (กรัม / gram)</label>
+                        <input type="number" step="0.001" id="in-unit-weight" placeholder="เช่น 0.35" oninput="calculateQtyFromWeight()" class="w-full p-2 border border-emerald-300 rounded-xl bg-white text-xs font-bold text-slate-700 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">น้ำหนักรวมงาน</label>
+                            <input type="number" step="0.01" id="in-total-weight" placeholder="0.00" oninput="calculateQtyFromWeight()" onfocus="this.select()" class="w-full p-2.5 border-2 border-emerald-400 rounded-xl bg-white font-black text-sm text-emerald-700 outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">หน่วยน้ำหนัก</label>
+                            <select id="in-weight-unit" onchange="calculateQtyFromWeight()" class="w-full p-2.5 border border-emerald-300 rounded-xl bg-white font-bold text-xs text-slate-700 outline-none">
+                                <option value="g">กรัม (g)</option>
+                                <option value="kg">กิโลกรัม (kg)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/90 border border-emerald-300/80 p-2.5 rounded-xl text-center shadow-inner">
+                        <div class="text-[10px] text-slate-500 font-bold uppercase">ผลลัพธ์การคำนวณ (Calculated)</div>
+                        <div class="text-xl font-black text-emerald-600 my-0.5"><span id="calc-result-qty">0</span> <span class="text-xs font-normal text-slate-500">ชิ้น</span></div>
+                        <div id="calc-formula-detail" class="text-[9px] text-slate-400 italic font-mono">สูตร: น้ำหนักรวม ÷ น้ำหนักต่อชิ้น</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1 italic">จำนวนชิ้นเข้า Database (Qty)</label>
                     <input type="number" id="in-qty" placeholder="ใส่จำนวน..." onfocus="this.select()" required class="w-full p-3 border-2 border-slate-100 rounded-xl bg-slate-50 focus:border-schneider outline-none font-black text-lg text-schneider">
                 </div>
+                
                 <button type="submit" id="saveBtn" class="w-full bg-schneider text-white py-4 rounded-2xl font-black shadow-xl hover:bg-emerald-600 transition-all mt-6 uppercase tracking-widest text-base active:scale-95">บันทึกข้อมูลทันที</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Manual Modal -->
+    <div id="manualModal" class="modal hide">
+        <div class="bg-white w-full max-w-lg p-6 rounded-3xl shadow-2xl space-y-4 m-4 max-h-[90vh] overflow-y-auto border-t-8 border-schneider">
+            <div class="flex justify-between items-center border-b pb-3 text-schneider">
+                <h2 class="text-lg font-black uppercase tracking-tighter italic text-schneider">📖 คู่มือการใช้งาน & ตารางอ้างอิงน้ำหนัก</h2>
+                <button onclick="closeManual()" class="text-slate-300 hover:text-slate-500 text-2xl font-light">&times;</button>
+            </div>
+            
+            <div class="space-y-3 text-xs text-slate-600">
+                <p class="font-bold text-slate-800">⚖️ ตารางน้ำหนักมาตรฐาน Part Sub (กรัม/ชิ้น):</p>
+                <table class="w-full border-collapse border border-slate-200 text-center rounded-lg overflow-hidden">
+                    <thead>
+                        <tr class="bg-slate-100 font-bold text-slate-700">
+                            <th class="p-2 border border-slate-200">Part Sub</th>
+                            <th class="p-2 border border-slate-200">น้ำหนัก gram / ชิ้น</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-bold">
+                        <tr>
+                            <td class="p-2 border border-slate-200 text-slate-800">51207041A-CF</td>
+                            <td class="p-2 border border-slate-200 text-emerald-600">0.35 g</td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 border border-slate-200 text-slate-800">GHM10489A-CF</td>
+                            <td class="p-2 border border-slate-200 text-emerald-600">0.39 g</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="font-bold text-slate-800 mt-2">💡 วิธีบันทึกงานเสียจากน้ำหนัก:</p>
+                <ol class="list-decimal pl-4 space-y-1">
+                    <li>กดปุ่ม <b>RECORD</b> ด้านบนเพื่อเปิดหน้าต่างบันทึกงาน</li>
+                    <li>เลือก <b>รุ่น (Model)</b> และ <b>อาการเสีย (Defect)</b></li>
+                    <li>คลิกปุ่ม <b>⚖️ คำนวณจากน้ำหนัก</b></li>
+                    <li>เลือก Part Sub ที่ชั่งงานเสีย (เช่น 51207041A-CF)</li>
+                    <li>ใส่น้ำหนักรวมที่ชั่งได้บนเครื่องชั่ง</li>
+                    <li>ระบบจะคำนวณจำนวนชิ้นใส่ในช่อง Qty ให้อัตโนมัติ แล้วกด <b>บันทึกข้อมูลทันที</b></li>
+                </ol>
+            </div>
+            
+            <button onclick="closeManual()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold transition-all">ปิดคู่มือ</button>
         </div>
     </div>
 
@@ -196,6 +297,7 @@
         
         let rawData = { logs: [], matrix: [], master: [] }, filteredLogs = [], charts = { defect: null, bom: null }, currentMode = 'current';
         let isFirstLoad = true;
+        let currentCalcMode = 'qty'; // 'qty' or 'weight'
 
         const strictCleanModel = (s) => s ? s.toString().replace(/\s+/g, '').toLowerCase() : "";
         const strictCleanPart = (s) => {
@@ -394,6 +496,98 @@
             });
         }
 
+        function setCalcMode(mode) {
+            currentCalcMode = mode;
+            const btnQty = document.getElementById('calc-mode-qty');
+            const btnWeight = document.getElementById('calc-mode-weight');
+            const weightBox = document.getElementById('weight-calc-box');
+            const qtyInput = document.getElementById('in-qty');
+
+            if (mode === 'weight') {
+                btnWeight.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all bg-emerald-600 text-white shadow-sm";
+                btnQty.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all text-slate-500 hover:text-slate-800";
+                weightBox.classList.remove('hide');
+                qtyInput.readOnly = true;
+                qtyInput.classList.add('bg-slate-200', 'cursor-not-allowed');
+                qtyInput.classList.remove('bg-slate-50');
+                calculateQtyFromWeight();
+            } else {
+                btnQty.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all bg-emerald-600 text-white shadow-sm";
+                btnWeight.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all text-slate-500 hover:text-slate-800";
+                weightBox.classList.add('hide');
+                qtyInput.readOnly = false;
+                qtyInput.classList.remove('bg-slate-200', 'cursor-not-allowed');
+                qtyInput.classList.add('bg-slate-50');
+            }
+        }
+
+        function handleDefectChange() {
+            const defectVal = document.getElementById('in-defect').value || '';
+            const cleanDefect = defectVal.replace(/\s+/g, '').toUpperCase();
+            
+            if (cleanDefect.includes('GHM10489A-CF') || cleanDefect.includes('GHM10489A')) {
+                setCalcMode('weight');
+                const selectPart = document.getElementById('in-part-sub');
+                if (selectPart) selectPart.value = "0.39";
+                document.getElementById('in-weight-unit').value = "g";
+                handlePartSubChange();
+                setTimeout(() => {
+                    const wInput = document.getElementById('in-total-weight');
+                    if (wInput) wInput.focus();
+                }, 100);
+            } else if (cleanDefect.includes('51207041A-CF') || cleanDefect.includes('51207041A')) {
+                setCalcMode('weight');
+                const selectPart = document.getElementById('in-part-sub');
+                if (selectPart) selectPart.value = "0.35";
+                document.getElementById('in-weight-unit').value = "g";
+                handlePartSubChange();
+                setTimeout(() => {
+                    const wInput = document.getElementById('in-total-weight');
+                    if (wInput) wInput.focus();
+                }, 100);
+            } else {
+                setCalcMode('qty');
+            }
+        }
+
+        function handlePartSubChange() {
+            const val = document.getElementById('in-part-sub').value;
+            const customContainer = document.getElementById('custom-weight-per-piece-container');
+            if (val === 'custom') {
+                customContainer.classList.remove('hide');
+            } else {
+                customContainer.classList.add('hide');
+            }
+            calculateQtyFromWeight();
+        }
+
+        function calculateQtyFromWeight() {
+            let unitWeight = parseFloat(document.getElementById('in-part-sub').value);
+            if (isNaN(unitWeight) || unitWeight <= 0) {
+                unitWeight = parseFloat(document.getElementById('in-unit-weight').value);
+            }
+            
+            let totalWeight = parseFloat(document.getElementById('in-total-weight').value) || 0;
+            const unit = document.getElementById('in-weight-unit').value;
+            
+            if (unit === 'kg') {
+                totalWeight = totalWeight * 1000;
+            }
+
+            if (unitWeight > 0 && totalWeight > 0) {
+                const calculatedPieces = Math.round(totalWeight / unitWeight);
+                document.getElementById('calc-result-qty').innerText = calculatedPieces.toLocaleString();
+                document.getElementById('calc-formula-detail').innerText = `${totalWeight.toFixed(2)}g ÷ ${unitWeight}g/ชิ้น = ${calculatedPieces} ชิ้น`;
+                document.getElementById('in-qty').value = calculatedPieces;
+            } else {
+                document.getElementById('calc-result-qty').innerText = "0";
+                document.getElementById('calc-formula-detail').innerText = "สูตร: น้ำหนักรวม ÷ น้ำหนักต่อชิ้น";
+                if (currentCalcMode === 'weight') {
+                    document.getElementById('in-qty').value = "";
+                }
+            }
+        }
+
         function calculateBOM() {
             const bMap = {}; 
             if (rawData.matrix && rawData.matrix.length > 0) {
@@ -471,7 +665,7 @@
 
             const bMap = calculateBOM(); 
             
-            // --- NEW: ดึงรายชื่อพาร์ทยูนีคทั้งหมดและจัดรูปแบบตารางตรวจสอบอย่างเป็นทางการ ---
+            // ดึงรายชื่อพาร์ทยูนีคทั้งหมดและจัดรูปแบบตารางตรวจสอบ
             const cols = getMasterColumnIndices();
             if (rawData.master && rawData.master.length > 1) {
                 const uniquePartsList = rawData.master.slice(1)
@@ -483,7 +677,6 @@
                         return { model, partNo, qty };
                     });
 
-                // สร้างแถวที่ 1 (Model + Part)
                 const headerHtml = uniquePartsList.map(item => {
                     const meta = getModelColorMeta(item.model);
                     return `
@@ -495,7 +688,6 @@
                     `;
                 }).join('');
 
-                // สร้างแถวที่ 2 (จำนวนชิ้นสะสมที่พบ)
                 const valueHtml = uniquePartsList.map(item => {
                     const meta = getModelColorMeta(item.model);
                     const isZero = item.qty === 0;
@@ -513,7 +705,6 @@
                 document.getElementById('unique-parts-values').innerHTML = valueHtml || '<td class="p-3 border border-slate-200 text-slate-400">-</td>';
             }
 
-            // จัดเรียงรายการแท่งพาร์ททั้งหมดของกราฟ BOM
             const bl = Object.keys(bMap)
                 .filter(k => bMap[k] > 0)
                 .sort((a, b) => {
@@ -542,22 +733,79 @@
 
         function openModal() { 
             document.getElementById('recordModal').classList.remove('hide'); 
-            document.getElementById('scrapForm').reset(); document.getElementById('in-id').value = ""; 
+            document.getElementById('scrapForm').reset(); 
+            document.getElementById('in-id').value = ""; 
+            
+            // รีเซ็ตการคำนวณจากน้ำหนัก
+            setCalcMode('qty');
+            document.getElementById('in-total-weight').value = "";
+            document.getElementById('in-unit-weight').value = "";
+            document.getElementById('calc-result-qty').innerText = "0";
+
             const lM = localStorage.getItem('lastModel'), lD = localStorage.getItem('lastDefect');
             if(lM) document.getElementById('in-model').value = lM;
             if(lD) document.getElementById('in-defect').value = lD;
             document.getElementById('in-qty').value = "";
             updateModelSelectStyle();
+            handleDefectChange();
         }
+
         function closeModal() { document.getElementById('recordModal').classList.add('hide'); }
-        function editEntry(id) { const e = rawData.logs.find(l => l[0] === id); if (e) { openModal(); document.getElementById('in-id').value = e[0]; document.getElementById('in-model').value = e[4]; document.getElementById('in-defect').value = e[5]; document.getElementById('in-qty').value = e[6]; updateModelSelectStyle(); } }
+        function openManual() { document.getElementById('manualModal').classList.remove('hide'); }
+        function closeManual() { document.getElementById('manualModal').classList.add('hide'); }
+
+        function editEntry(id) { 
+            const e = rawData.logs.find(l => l[0] === id); 
+            if (e) { 
+                openModal(); 
+                document.getElementById('in-id').value = e[0]; 
+                document.getElementById('in-model').value = e[4]; 
+                document.getElementById('in-defect').value = e[5]; 
+                document.getElementById('in-qty').value = e[6]; 
+                updateModelSelectStyle(); 
+                handleDefectChange();
+            } 
+        }
         
         document.getElementById('scrapForm').addEventListener('submit', async (e) => { 
-            e.preventDefault(); const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "บันทึก..."; 
+            e.preventDefault(); 
+            const btn = document.getElementById('saveBtn'); 
+            btn.disabled = true; 
+            btn.innerText = "บันทึก..."; 
+            
             const m = document.getElementById('in-model').value, d = document.getElementById('in-defect').value, q = document.getElementById('in-qty').value;
-            localStorage.setItem('lastModel', m); localStorage.setItem('lastDefect', d);
-            try { await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: document.getElementById('in-id').value ? 'edit' : 'create', id: document.getElementById('in-id').value, model: m, defect: d, qty: q }) }); showToast("สำเร็จ!", "#3dcd58"); closeModal(); fetchAllData(); } 
-            catch (err) { showToast("Error!", "#ef4444"); } finally { btn.disabled = false; btn.innerText = "บันทึกข้อมูลทันที"; } 
+            
+            if (!q || parseInt(q) <= 0) {
+                showToast("กรุณาระบุจำนวนชิ้น หรือน้ำหนักให้ถูกต้อง", "#f59e0b");
+                btn.disabled = false;
+                btn.innerText = "บันทึกข้อมูลทันที";
+                return;
+            }
+
+            localStorage.setItem('lastModel', m); 
+            localStorage.setItem('lastDefect', d);
+            
+            try { 
+                await fetch(APPS_SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: document.getElementById('in-id').value ? 'edit' : 'create', 
+                        id: document.getElementById('in-id').value, 
+                        model: m, 
+                        defect: d, 
+                        qty: q 
+                    }) 
+                }); 
+                showToast("บันทึกสำเร็จ!", "#3dcd58"); 
+                closeModal(); 
+                fetchAllData(); 
+            } 
+            catch (err) { 
+                showToast("Error บันทึกข้อมูลไม่สำเร็จ!", "#ef4444"); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = "บันทึกข้อมูลทันที"; 
+            } 
         });
 
         function showToast(m, c) { const t = document.getElementById('toast'); t.innerText = m; t.style.backgroundColor = c; t.classList.remove('hide'); setTimeout(() => t.classList.add('hide'), 3000); }
